@@ -1,6 +1,6 @@
 # VibeMatch
 
-Visual-semantic retrieval system that matches movie/book vibes using CLIP embeddings and FAISS similarity search, with an optional MLP genre classifier.
+Visual-semantic retrieval system that matches movie/book vibes using CLIP embeddings and Cosine similarity search, with an optional MLP genre classifier.
 
 ## Project Structure
 
