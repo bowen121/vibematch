@@ -1,0 +1,36 @@
+# Local-only course materials
+Course_Materials/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (too large for git)
+data/raw/
+data/processed/
+
+# Model weights and index files
+models/*.pt
+models/*.bin
+
+# Jupyter
+.ipynb_checkpoints/

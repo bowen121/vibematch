@@ -1,0 +1,18 @@
+# ── Training hyperparameters ──
+clip:
+  batch_size: 64
+  learning_rate: 1.0e-4
+  epochs: 30
+  projection_dim: 256
+  temperature: 0.07
+  weight_decay: 1.0e-4
+  scheduler: cosine
+  warmup_steps: 500
+
+classifier:
+  batch_size: 128
+  learning_rate: 1.0e-3
+  epochs: 50
+  hidden_dims: [512, 256]
+  dropout: 0.3
+  patience: 5           # early stopping patience
