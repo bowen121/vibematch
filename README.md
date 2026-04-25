@@ -8,6 +8,38 @@ Aesthetic-driven media retrieval system that matches movie/book vibes using a cu
 pip install -r requirements.txt
 ```
 
+## Dataset setup
+
+VibeMatch uses two Kaggle datasets:
+
+- [Movie Posters](https://www.kaggle.com/datasets/neha1703/movie-genre-from-its-poster) (~7k images)
+- [Book Covers](https://www.kaggle.com/datasets/mexwell/book-cover-dataset) (~20k images)
+
+**1. Get a Kaggle API token** — go to https://www.kaggle.com/settings/account, click "Create New Token", then:
+
+```bash
+mkdir -p ~/.kaggle
+mv ~/Downloads/kaggle.json ~/.kaggle/
+chmod 600 ~/.kaggle/kaggle.json
+```
+
+**2. Accept dataset rules** — open each dataset page above in a browser (while signed in) and click *"I Understand and Accept"*. Without this, downloads return 403.
+
+**3. Download** — pulls both datasets into `data/raw/{movies,books}/` (skips if already present):
+
+```bash
+python scripts/download_data.py
+# or just one: --movies / --books     re-download: --force
+```
+
+**4. Preprocess** — flattens both raw dumps into `data/processed/{movies,books}.csv` with a unified schema (`id, image_path, title, genres, source`):
+
+```bash
+python scripts/preprocess.py
+```
+
+**5. EDA** — open `notebooks/exploration.ipynb` to see genre distribution, image-size stats, sample grids, and split balance.
+
 ## Project Structure
 
 ```
