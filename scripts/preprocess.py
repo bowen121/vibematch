@@ -27,8 +27,15 @@ IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
 
 def _find_column(df: pd.DataFrame, keywords: list[str], required: bool = True) -> str | None:
-    """Return the first column whose lowercased name contains any keyword."""
+    """Return the column matching any keyword, preferring exact (case-insensitive) match.
+
+    Prefers `Category` over `Category ID` when keyword == "category". Falls back
+    to substring match if no exact match exists.
+    """
     lower_map = {c.lower(): c for c in df.columns}
+    for kw in keywords:
+        if kw in lower_map:
+            return lower_map[kw]
     for kw in keywords:
         for low, original in lower_map.items():
             if kw in low:
@@ -110,30 +117,43 @@ def preprocess_movies() -> pd.DataFrame:
 
 
 def preprocess_books() -> pd.DataFrame:
-    """Build the canonical books frame from data/raw/books/."""
-    raw_root = RAW_DIR / "books"
-    csv_path = _first_csv(raw_root)
-    df = pd.read_csv(csv_path, encoding_errors="ignore")
+    """Build the canonical books frame from data/raw/books/.
 
-    id_col = _find_column(df, ["isbn", "id"], required=False)
+    The mexwell/book-cover-dataset ships:
+      - book30-listing-{train,test}.csv  (semicolon-delimited, ~57k rows total)
+      - title30cat/224x224/{ASIN}.jpg    (the 57k pre-resized covers)
+    We combine train+test because the images match both.
+    """
+    raw_root = RAW_DIR / "books"
+    listing_files = [
+        raw_root / "book30-listing-train.csv",
+        raw_root / "book30-listing-test.csv",
+    ]
+    listing_files = [p for p in listing_files if p.exists()]
+    if not listing_files:
+        raise FileNotFoundError(
+            f"Expected book30-listing-{{train,test}}.csv under {raw_root}."
+        )
+
+    frames = []
+    for p in listing_files:
+        # Semicolon-delimited; some titles use non-UTF8 bytes.
+        frames.append(pd.read_csv(p, sep=";", encoding="latin-1"))
+    df = pd.concat(frames, ignore_index=True)
+
+    id_col = _find_column(df, ["asin", "isbn", "amazon index"])
     title_col = _find_column(df, ["title", "name"])
-    genre_col = _find_column(df, ["genre", "category", "categories"])
-    image_col = _find_column(df, ["image", "cover", "filename", "file_name"], required=False)
+    genre_col = _find_column(df, ["category", "genre", "categories"])
+    image_col = _find_column(df, ["filename", "file_name", "image"], required=False)
 
     images = _index_images(raw_root)
     rows = []
     for i, r in df.iterrows():
-        if id_col and pd.notna(r[id_col]):
-            raw_id = str(r[id_col]).strip()
-        else:
-            raw_id = str(i)
+        raw_id = str(r[id_col]).strip() if pd.notna(r[id_col]) else str(i)
         img = None
         if image_col and pd.notna(r[image_col]):
             cand = str(r[image_col]).strip()
-            stem = Path(cand).stem
-            img = images.get(stem)
-            if img is None and (raw_root / cand).exists():
-                img = raw_root / cand
+            img = images.get(Path(cand).stem)
         if img is None:
             img = images.get(raw_id)
         if img is None:
@@ -147,6 +167,7 @@ def preprocess_books() -> pd.DataFrame:
         })
     out = pd.DataFrame(rows)
     out = out[out["genres"].str.len() > 0].reset_index(drop=True)
+    out = out.drop_duplicates(subset=["id"]).reset_index(drop=True)
     return out
 
 

@@ -6,8 +6,14 @@ Usage:
     python scripts/download_data.py --books      # download only books
     python scripts/download_data.py --force      # re-download even if present
 
-Auth: requires either ~/.kaggle/kaggle.json (chmod 600) or KAGGLE_USERNAME +
-KAGGLE_KEY env vars. See https://www.kaggle.com/docs/api for setup.
+Auth (in priority order):
+    1. KAGGLE_API_TOKEN env var (new Access Token, "KGAT_..."), or
+    2. ~/.kaggle/access_token file (same token, on-disk), or
+    3. KAGGLE_USERNAME + KAGGLE_KEY env vars (legacy), or
+    4. ~/.kaggle/kaggle.json (legacy on-disk).
+
+The new API Token is recommended; legacy keys still work. See
+https://www.kaggle.com/docs/api for setup.
 """
 
 from __future__ import annotations
@@ -53,25 +59,42 @@ DATASETS = {
 
 
 def _check_credentials() -> None:
-    """Fail fast with an actionable message if Kaggle credentials are missing."""
-    username = os.environ.get("KAGGLE_USERNAME", "").strip()
-    key = os.environ.get("KAGGLE_KEY", "").strip()
-    has_env = bool(username) and bool(key)
-    has_file = (Path.home() / ".kaggle" / "kaggle.json").exists()
-    if has_env or has_file:
+    """Resolve credentials in priority order, fail with an actionable message if none.
+
+    Priority:
+        1. KAGGLE_API_TOKEN (new "Access token" format, e.g. KGAT_...)
+        2. ~/.kaggle/access_token (same token, on-disk)
+        3. KAGGLE_USERNAME + KAGGLE_KEY (legacy)
+        4. ~/.kaggle/kaggle.json (legacy on-disk)
+
+    For (1) we also write the token to ~/.kaggle/access_token because some
+    versions of the kaggle library only look at the file, not the env var.
+    """
+    api_token = os.environ.get("KAGGLE_API_TOKEN", "").strip()
+    access_token_file = Path.home() / ".kaggle" / "access_token"
+    legacy_file = Path.home() / ".kaggle" / "kaggle.json"
+    legacy_user = os.environ.get("KAGGLE_USERNAME", "").strip()
+    legacy_key = os.environ.get("KAGGLE_KEY", "").strip()
+
+    if api_token:
+        access_token_file.parent.mkdir(parents=True, exist_ok=True)
+        if not access_token_file.exists() or access_token_file.read_text().strip() != api_token:
+            access_token_file.write_text(api_token + "\n")
+            access_token_file.chmod(0o600)
         return
-    missing = []
-    if not username:
-        missing.append("KAGGLE_USERNAME")
-    if not key:
-        missing.append("KAGGLE_KEY")
+    if access_token_file.exists():
+        return
+    if legacy_user and legacy_key:
+        return
+    if legacy_file.exists():
+        return
+
     sys.exit(
-        f"Kaggle credentials not found (missing: {', '.join(missing) or 'all'}).\n"
-        "Either:\n"
-        "  (a) fill both KAGGLE_USERNAME and KAGGLE_KEY in .env (see .env.example), or\n"
-        "  (b) place kaggle.json from https://www.kaggle.com/settings/account at\n"
+        "Kaggle credentials not found. Pick one:\n"
+        "  (a) Generate a new API Token at https://www.kaggle.com/settings/account\n"
+        "      and put it in .env as KAGGLE_API_TOKEN=KGAT_...  (recommended)\n"
+        "  (b) Same page → 'Create Legacy API Key' → save kaggle.json to\n"
         "      ~/.kaggle/kaggle.json (chmod 600).\n"
-        "Both username and key are required — a key alone will not authenticate."
     )
 
 
