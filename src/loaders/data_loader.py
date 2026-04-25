@@ -10,13 +10,37 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Sequence
 
+import numpy as np
 import pandas as pd
-from torch.utils.data import DataLoader
+import torch
+from torch.utils.data import DataLoader, WeightedRandomSampler
 
 from src.loaders.dataset import MediaDataset, parse_genres
 from src.loaders.split import build_genre_vocab, genre_stratified_split
 
 PROCESSED_CSVS = ("movies.csv", "books.csv")
+
+
+def build_source_balanced_sampler(
+    sources: Sequence[str], generator: torch.Generator | None = None
+) -> WeightedRandomSampler:
+    """Sample with weights so each source (movie/book) is drawn equally often.
+
+    Without this, books outnumber movies ~50:1 and Member B's contrastive
+    trainer barely sees movie/text pairs. With it, expected source proportions
+    in a batch are 50/50.
+
+    Returned sampler has num_samples == len(sources) and replacement=True.
+    """
+    sources = list(sources)
+    counts = pd.Series(sources).value_counts().to_dict()
+    weights = np.array([1.0 / counts[s] for s in sources], dtype=np.float64)
+    return WeightedRandomSampler(
+        weights=weights.tolist(),
+        num_samples=len(sources),
+        replacement=True,
+        generator=generator,
+    )
 
 
 @dataclass
@@ -60,11 +84,18 @@ def make_data_bundle(
     seed: int = 42,
     min_genre_count: int = 5,
     pin_memory: bool = True,
+    balance_train_sources: bool = False,
 ) -> DataBundle:
     """Build the train/val/test loaders + genre vocabulary in one call.
 
     The split happens here (not at preprocess time) so seed changes don't
     require re-running preprocess.
+
+    Args:
+        balance_train_sources: if True, the train loader uses a
+            WeightedRandomSampler that draws "movie" and "book" rows with
+            equal expected frequency. Recommended for Member B's contrastive
+            trainer because the raw class ratio is ~50:1 books:movies.
     """
     df = load_processed_frame(processed_dir)
     genres_per_item = [parse_genres(g) for g in df["genres"]]
@@ -82,7 +113,7 @@ def make_data_bundle(
     val_df = df.iloc[split.val].reset_index(drop=True)
     test_df = df.iloc[split.test].reset_index(drop=True)
 
-    def _make(loader_df: pd.DataFrame, train: bool, shuffle: bool) -> DataLoader:
+    def _make(loader_df: pd.DataFrame, train: bool, shuffle: bool, sampler=None) -> DataLoader:
         ds = MediaDataset(
             loader_df,
             data_root=data_root,
@@ -94,14 +125,20 @@ def make_data_bundle(
         return DataLoader(
             ds,
             batch_size=batch_size,
-            shuffle=shuffle,
+            shuffle=shuffle and sampler is None,
+            sampler=sampler,
             num_workers=num_workers,
             pin_memory=pin_memory,
-            drop_last=shuffle,
+            drop_last=shuffle or sampler is not None,
         )
 
+    train_sampler = None
+    if balance_train_sources:
+        gen = torch.Generator().manual_seed(seed)
+        train_sampler = build_source_balanced_sampler(train_df["source"].tolist(), generator=gen)
+
     return DataBundle(
-        train_loader=_make(train_df, train=True, shuffle=True),
+        train_loader=_make(train_df, train=True, shuffle=True, sampler=train_sampler),
         val_loader=_make(val_df, train=False, shuffle=False),
         test_loader=_make(test_df, train=False, shuffle=False),
         genre_vocab=vocab,

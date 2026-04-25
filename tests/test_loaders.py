@@ -20,7 +20,11 @@ from src.loaders.dataset import (
     parse_genres,
     render_prompt,
 )
-from src.loaders.data_loader import load_processed_frame, make_data_bundle
+from src.loaders.data_loader import (
+    build_source_balanced_sampler,
+    load_processed_frame,
+    make_data_bundle,
+)
 from src.loaders.split import (
     build_genre_vocab,
     genre_stratified_split,
@@ -220,3 +224,43 @@ def test_make_data_bundle_end_to_end(tmp_path: Path):
     assert batch["image"].shape[1:] == (3, 224, 224)
     assert batch["labels"].shape[1] == len(bundle.genre_vocab)
     assert batch["image"].shape[0] == batch["labels"].shape[0]
+
+
+# ---------- WeightedRandomSampler ----------
+
+
+def test_balanced_sampler_evens_out_imbalanced_sources():
+    # 90 books, 10 movies. Without weighting, books would dominate ~9:1.
+    sources = ["book"] * 90 + ["movie"] * 10
+    sampler = build_source_balanced_sampler(
+        sources, generator=torch.Generator().manual_seed(0)
+    )
+    drawn = [sources[i] for i in list(sampler)]
+    n_movie = drawn.count("movie")
+    n_book = drawn.count("book")
+    # Expected ~50/50; allow generous tolerance for the small N.
+    assert 30 <= n_movie <= 70, f"movie count {n_movie} far from balanced"
+    assert 30 <= n_book <= 70, f"book count {n_book} far from balanced"
+
+
+def test_make_data_bundle_uses_balanced_sampler(tmp_path: Path):
+    root = _make_synthetic_data(tmp_path, n_movies=2, n_books=10)
+    bundle = make_data_bundle(
+        processed_dir=root / "data" / "processed",
+        data_root=root,
+        tokenizer=_FakeTokenizer(),
+        batch_size=4,
+        num_workers=0,
+        val_frac=0.0,
+        test_frac=0.0,
+        seed=0,
+        min_genre_count=1,
+        pin_memory=False,
+        balance_train_sources=True,
+    )
+    seen = []
+    for batch in bundle.train_loader:
+        # When sampler is set, shuffle is False but the sampler does the work.
+        # We just need the loader to actually iterate.
+        seen.append(batch["image"].shape[0])
+    assert sum(seen) > 0, "balanced loader produced no batches"

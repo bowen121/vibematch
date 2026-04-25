@@ -31,20 +31,27 @@ VibeMatch uses two Kaggle datasets:
 
 **2. Accept dataset rules** — open each dataset page above in a browser (while signed in) and click *"I Understand and Accept"*. Without this, downloads return 403.
 
-**3. Download** — pulls both datasets into `data/raw/{movies,books}/` (skips if already present):
+**3. One-command pipeline** — runs Kaggle fetch + poster URL download + preprocess in order, idempotent:
 
 ```bash
-python scripts/download_data.py
-# or just one: --movies / --books     re-download: --force
+python scripts/prepare_data.py
+# faster path skipping the URL fetch (only ~1k movies):
+python scripts/prepare_data.py --skip-posters
 ```
 
-**4. Preprocess** — flattens both raw dumps into `data/processed/{movies,books}.csv` with a unified schema (`id, image_path, title, genres, source`):
+This produces `data/processed/{movies,books}.csv` with a unified schema (`id, image_path, title, genres, source`) and is what Member B and Member C depend on.
+
+**4. EDA** — open `notebooks/exploration.ipynb` for genre distribution, image-size stats, sample grids, and split balance.
+
+**Sub-scripts (run individually if you want):**
 
 ```bash
-python scripts/preprocess.py
+python scripts/download_data.py            # Kaggle datasets
+python scripts/download_posters.py         # ~39k poster URLs from MovieGenre.csv
+python scripts/preprocess.py               # raw -> canonical CSVs
 ```
 
-**5. EDA** — open `notebooks/exploration.ipynb` to see genre distribution, image-size stats, sample grids, and split balance.
+For Part A details (DataBundle API, sampler, schema), see [`docs/part_a.md`](docs/part_a.md).
 
 ## Project Structure
 
