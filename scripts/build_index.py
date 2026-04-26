@@ -108,14 +108,17 @@ def build(
             images, indices = batch
             img_emb = encoder.encode_image(images.to(device))
             all_embeddings.append(img_emb.cpu().numpy())
-             for idx in indices:
+              for idx in indices:
                 row = df.loc[idx]
+                with Image.open(Path(data_root) / row["image_path"]) as raw_img:
+                    dominant_color = extract_dominant_color(raw_img)
                 all_meta.append({
                     "image_path": str(row["image_path"]),
                     "genres": str(row["genres"]),
                     "title": str(row.get("title", "")),
                     "source": str(row.get("source", "")),
                     "id": str(row.get("id", "")),
+                    "dominant_color": dominant_color,
                 })
  
     embeddings = normalise(np.vstack(all_embeddings).astype(np.float32))
