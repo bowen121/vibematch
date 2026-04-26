@@ -19,7 +19,16 @@ from tqdm import tqdm
 from src.loaders.data_loader import load_processed_frame
 from src.model.encoder import VibeMatchEncoder
 from src.retrieval.engine import build_index, normalise, save_index
- 
+
+
+from collections import Counter
+
+def extract_dominant_color(img: Image.Image, n_samples: int = 64) -> str:
+    thumb = img.convert("RGB").resize((n_samples, n_samples), Image.BILINEAR)
+    quantised = thumb.quantize(colors=32).convert("RGB")
+    pixels = list(quantised.getdata())
+    r, g, b = Counter(pixels).most_common(1)[0][0]
+    return f"#{r:02x}{g:02x}{b:02x}"
  
 class PosterDataset(Dataset):
     """Returns (image_tensor, row_index) pairs for inference."""
