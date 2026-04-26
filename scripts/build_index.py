@@ -108,11 +108,11 @@ def build(
             images, indices = batch
             img_emb = encoder.encode_image(images.to(device))
             all_embeddings.append(img_emb.cpu().numpy())
-            for idx in indices:
+             for idx in indices:
                 row = df.loc[idx]
                 all_meta.append({
                     "image_path": str(row["image_path"]),
-                    "genres": str(row["genres"]),   
+                    "genres": str(row["genres"]),
                     "title": str(row.get("title", "")),
                     "source": str(row.get("source", "")),
                     "id": str(row.get("id", "")),
