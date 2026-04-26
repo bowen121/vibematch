@@ -1,6 +1,11 @@
 # Local-only course materials
 Course_Materials/
 
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
 # Python
 __pycache__/
 *.py[cod]

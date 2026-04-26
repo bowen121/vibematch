@@ -8,6 +8,51 @@ Aesthetic-driven media retrieval system that matches movie/book vibes using a cu
 pip install -r requirements.txt
 ```
 
+## Dataset setup
+
+VibeMatch uses two Kaggle datasets:
+
+- [Movie Posters](https://www.kaggle.com/datasets/neha1703/movie-genre-from-its-poster) (~7k images)
+- [Book Covers](https://www.kaggle.com/datasets/mexwell/book-cover-dataset) (~20k images)
+
+**1. Get a Kaggle API token** — go to https://www.kaggle.com/settings/account. Two options:
+
+- **(Recommended) New API Token** → click "Generate New Token", copy the `KGAT_…` string, then put it in `.env`:
+  ```bash
+  cp .env.example .env  # then edit .env and set KAGGLE_API_TOKEN=KGAT_...
+  ```
+  Requires `kaggle>=1.8.0` (already pinned in `requirements.txt`).
+- **(Legacy) kaggle.json** → click "Create Legacy API Key", then:
+  ```bash
+  mkdir -p ~/.kaggle
+  mv ~/Downloads/kaggle.json ~/.kaggle/
+  chmod 600 ~/.kaggle/kaggle.json
+  ```
+
+**2. Accept dataset rules** — open each dataset page above in a browser (while signed in) and click *"I Understand and Accept"*. Without this, downloads return 403.
+
+**3. One-command pipeline** — runs Kaggle fetch + poster URL download + preprocess in order, idempotent:
+
+```bash
+python scripts/prepare_data.py
+# faster path skipping the URL fetch (only ~1k movies):
+python scripts/prepare_data.py --skip-posters
+```
+
+This produces `data/processed/{movies,books}.csv` with a unified schema (`id, image_path, title, genres, source`) and is what Member B and Member C depend on.
+
+**4. EDA** — open `notebooks/exploration.ipynb` for genre distribution, image-size stats, sample grids, and split balance.
+
+**Sub-scripts (run individually if you want):**
+
+```bash
+python scripts/download_data.py            # Kaggle datasets
+python scripts/download_posters.py         # ~39k poster URLs from MovieGenre.csv
+python scripts/preprocess.py               # raw -> canonical CSVs
+```
+
+For Part A details (DataBundle API, sampler, schema), see [`docs/part_a.md`](docs/part_a.md).
+
 ## Project Structure
 
 ```
