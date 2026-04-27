@@ -465,6 +465,11 @@ components.html(f"""
   .vm-search-form input::placeholder {{
     color: #555250;
   }}
+  body {{
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }}
   .vm-search-form button {{
     appearance: none;
     border: none;
