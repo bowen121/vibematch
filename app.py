@@ -147,22 +147,22 @@ section[data-testid="stSidebar"] { display: none; }
   color: var(--ink-0) !important;
   font-family: var(--serif) !important;
   font-size: 18px !important; font-style: italic !important;
-  padding: 18px 24px !important;
+  height: 58px !important;
+  padding: 0 24px !important;
   backdrop-filter: blur(14px) !important;
   box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
   transition: border-color 300ms, box-shadow 300ms !important;
 }
 .stTextInput > div > div > input:focus {
-  border-color: rgba(139,159,244,0.5) !important;
-  box-shadow: inset 0 1px 0 rgba(245,243,238,0.08), 0 0 0 4px rgba(139,159,244,0.06),
-              0 30px 100px -30px rgba(139,159,244,0.4) !important;
+  border-color: rgba(212,165,116,0.5) !important;
+  box-shadow: inset 0 1px 0 rgba(245,243,238,0.08), 0 0 0 4px rgba(212,165,116,0.06),
+              0 30px 100px -30px rgba(212,165,116,0.4) !important;
   outline: none !important;
 }
 .stTextInput > div > div > input::placeholder { color: var(--ink-3) !important; }
 .stTextInput label { display: none !important; }
 .stTextInput > div { border: none !important; box-shadow: none !important; background: transparent !important; }
 
-/* All buttons default to frosted chip style */
 [data-testid="stButton"] button {
   background: rgba(24,28,42,0.4) !important;
   border: 1px solid var(--line) !important;
@@ -209,8 +209,6 @@ section[data-testid="stSidebar"] { display: none; }
 .vm-card:hover .vm-halo  { opacity: 0.95 !important; transform: scale(1.05) !important; }
 .vm-card:hover .vm-cover { transform: translateY(-6px) !important; box-shadow: 0 30px 60px -20px rgba(5,6,12,0.8) !important; }
 .vm-card:hover .vm-score { opacity: 1 !important; transform: translateY(0) !important; }
-
-.stTextInput > div > div > input { height: 58px !important; padding: 0 24px !important; }
 
 @keyframes vm-shimmer { 0% { transform: translateX(-60%); } 100% { transform: translateX(160%); } }
 @keyframes vm-pulse   { 0%,100% { opacity:.4; transform:scale(.85); } 50% { opacity:1; transform:scale(1); } }
