@@ -139,74 +139,6 @@ section[data-testid="stSidebar"] { display: none; }
 .block-container { padding: 0 !important; max-width: 100% !important; }
 .element-container { margin: 0 !important; }
 
-/* Search input */
-
-.stTextInput > div,
-.stTextInput > div > div {
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.stTextInput > div > div {
-  border-radius: 999px !important;
-  overflow: visible !important;
-}
-.stTextInput > div {
-  overflow: visible !important;
-}
-[data-testid="stHorizontalBlock"] {
-  overflow: visible !important;
-}
-[data-testid="column"] {
-  overflow: visible !important;
-}
-.stTextInput > div > div > input {
-  background: rgba(24,28,42,0.55) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 999px !important;
-  color: var(--ink-0) !important;
-  font-family: var(--serif) !important;
-  font-size: 18px !important; font-style: italic !important;
-  height: 58px !important;
-  padding: 0 24px !important;
-  box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
-  backdrop-filter: blur(14px) !important;
-  box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
-  transition: border-color 300ms, box-shadow 300ms !important;
-}
-.stTextInput > div > div > input:focus {
-  border-color: rgba(212,165,116,0.5) !important;
-  box-shadow: inset 0 1px 0 rgba(245,243,238,0.08), 0 0 0 4px rgba(212,165,116,0.06),
-              0 30px 100px -30px rgba(212,165,116,0.4) !important;
-  outline: none !important;
-}
-.stTextInput > div > div > input::placeholder { color: var(--ink-3) !important; }
-.stTextInput label { display: none !important; }
-.stTextInput > div { border: none !important; box-shadow: none !important; background: transparent !important; }
-
-[data-testid="stButton"] button {
-  background: rgba(24,28,42,0.4) !important;
-  border: 1px solid var(--line) !important;
-  color: var(--ink-1) !important;
-  border-radius: 999px !important;
-  font-family: var(--sans) !important;
-  font-size: 12px !important;
-  font-weight: 300 !important;
-  padding: 8px 14px !important;
-  height: auto !important;
-  width: 100% !important;
-  box-shadow: none !important;
-  backdrop-filter: blur(10px) !important;
-  text-transform: none !important;
-  letter-spacing: normal !important;
-  transition: all 220ms !important;
-}
-[data-testid="stButton"] button:hover {
-  border-color: rgba(212,165,116,0.4) !important;
-  color: var(--ink-0) !important;
-  background: rgba(30,28,20,0.45) !important;
-  box-shadow: 0 0 0 1px rgba(212,165,116,0.18), 0 0 30px rgba(212,165,116,0.2) !important;
-}
 [data-testid="stCustomComponentV1"] {
   width: 100% !important;
 }
@@ -391,7 +323,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div style="position:relative;z-index:2;text-align:center;padding:14vh 40px 6vh;">
+<div style="position:relative;z-index:2;text-align:center;padding:14vh 40px 6vh;width:100%;">
   <div style="font-family:var(--mono);font-size:11px;letter-spacing:.32em;
     color:var(--ink-2);text-transform:uppercase;margin-bottom:28px;">
     <span style="display:inline-block;vertical-align:middle;width:30px;height:1px;
