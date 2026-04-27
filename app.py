@@ -1,4 +1,7 @@
-"""Streamlit entry point: launches the VibeMatch web app."""
+"""Streamlit entry point: launches the VibeMatch web app.
+git pull origin main
+python -m streamlit run app.py
+"""
 
 from __future__ import annotations
 
