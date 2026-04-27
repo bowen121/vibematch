@@ -358,7 +358,7 @@ components.html(f"""
   .vm-search-wrap {{
     max-width: 960px;
     width: 100%;
-    margin: 0px auto 0;
+    margin: 6px auto 0;
     padding: 0 40px;
     box-sizing: border-box;
   }}
