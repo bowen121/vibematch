@@ -142,11 +142,11 @@ section[data-testid="stSidebar"] { display: none; }
 /* Search input */
 
 .stTextInput > div,
-.stTextInput > div > div,
-.stTextInput > div > div > input {
-  border-radius: 999px !important;
+.stTextInput > div > div {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
-
 
 .stTextInput > div > div > input {
   background: rgba(24,28,42,0.55) !important;
@@ -156,7 +156,7 @@ section[data-testid="stSidebar"] { display: none; }
   font-family: var(--serif) !important;
   font-size: 18px !important; font-style: italic !important;
   height: 58px !important;
-  padding: 0px 24px 24px 24px !important;
+  padding: 0 24px !important;
   box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
   backdrop-filter: blur(14px) !important;
   box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
@@ -196,8 +196,8 @@ section[data-testid="stSidebar"] { display: none; }
   box-shadow: 0 0 0 1px rgba(212,165,116,0.18), 0 0 30px rgba(212,165,116,0.2) !important;
 }
 
-/* Override: Match button (it's the only button in a 4-column row) */
-[data-testid="stHorizontalBlock"]:has([data-testid="column"]:nth-child(4)):not(:has([data-testid="column"]:nth-child(5))) [data-testid="stButton"] button {
+/* Match button 
+[data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"]:nth-child(3) [data-testid="stButton"] button {
   background: linear-gradient(180deg, #d4a574, #b8895d) !important;
   color: #1a1308 !important;
   font-size: 13px !important;
@@ -205,11 +205,12 @@ section[data-testid="stSidebar"] { display: none; }
   letter-spacing: 0.16em !important;
   text-transform: uppercase !important;
   padding: 0 28px !important;
-  height: 58px !important;
+  height: 46px !important;
+  margin: 6px 6px 0 0 !important;
   border: none !important;
   box-shadow: 0 0 0 1px rgba(220,180,130,0.4), 0 0 30px rgba(212,165,116,0.45) !important;
 }
-[data-testid="stHorizontalBlock"]:has([data-testid="column"]:nth-child(4)):not(:has([data-testid="column"]:nth-child(5))) [data-testid="stButton"] button:hover {
+[data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"]:nth-child(3) [data-testid="stButton"] butto:hover {
   background: linear-gradient(180deg, #e0b882, #c99a5e) !important;
   box-shadow: 0 0 0 1px rgba(220,180,130,0.6), 0 0 50px rgba(212,165,116,0.7) !important;
 }
