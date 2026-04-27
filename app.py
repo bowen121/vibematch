@@ -440,7 +440,7 @@ components.html(f"""
     window.parent.location.href = window.parent.location.pathname + '?q=' + encodeURIComponent(val);
   }}
 </script>
-""", height=88, scrolling=False)
+""", height=108, scrolling=False)
 
 components.html(f"""
 <style>
@@ -490,7 +490,7 @@ components.html(f"""
     window.parent.location.href = window.parent.location.pathname + '?q=' + encodeURIComponent(q);
   }}
 </script>
-""", height=70, scrolling=False)
+""", height=90, scrolling=False)
 
 '''
 if match_clicked and query_input.strip():
