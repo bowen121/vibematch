@@ -422,16 +422,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-_, col_input, col_btn, _ = st.columns([2, 6, 1, 2], gap="small")
-with col_input:
-    query_input = st.text_input(
-        "",
-        placeholder="a lonely journey through a neon-lit dystopian city",
-        key="query_input",
-        label_visibility="collapsed",
-    )
-with col_btn:
-    match_clicked = st.button("Match ↗", use_container_width=True)
+query_input = st.chat_input("a lonely journey through a neon-lit dystopian city")
+match_clicked = query_input is not None
 
 # Chips
 EXAMPLE_PROMPTS = [
@@ -451,7 +443,7 @@ for col, prompt in zip(chip_cols, EXAMPLE_PROMPTS):
             query_input = prompt
 
 '''
-if match_clicked and query_input.strip():
+if match_clicked:
     st.session_state.last_query = query_input.strip()
     with st.spinner(""):
         try:
