@@ -140,6 +140,14 @@ section[data-testid="stSidebar"] { display: none; }
 .element-container { margin: 0 !important; }
 
 /* Search input */
+
+.stTextInput > div,
+.stTextInput > div > div,
+.stTextInput > div > div > input {
+  border-radius: 999px !important;
+}
+
+
 .stTextInput > div > div > input {
   background: rgba(24,28,42,0.55) !important;
   border: 1px solid var(--line) !important;
@@ -148,7 +156,7 @@ section[data-testid="stSidebar"] { display: none; }
   font-family: var(--serif) !important;
   font-size: 18px !important; font-style: italic !important;
   height: 58px !important;
-  padding: 0 24px !important;
+  padding: 10px 24px !important;
   backdrop-filter: blur(14px) !important;
   box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
   transition: border-color 300ms, box-shadow 300ms !important;
