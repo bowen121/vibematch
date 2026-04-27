@@ -335,12 +335,12 @@ st.markdown("""
     <span style="display:inline-block;vertical-align:middle;width:30px;height:1px;
       background:var(--line-2);margin-left:14px;"></span>
   </div>
-  <h1 style="font-family:var(--serif);font-weight:300;
+  <div style="font-family:var(--serif);font-weight:300;
     font-size:clamp(64px,11vw,140px);line-height:.95;letter-spacing:-.02em;
     margin:0;color:var(--ink-0);
     text-shadow:0 0 40px rgba(235,230,215,.18),0 0 80px rgba(139,159,244,.12);">
     Find your <em style="color:#e8c490;">vibe.</em>
-  </h1>
+  </div>
   <p style="margin:22px auto 0;max-width:540px;color:var(--ink-2);
     font-size:17px;font-weight:300;line-height:1.5;">
     Describe a mood. Discover movies and books that match.
