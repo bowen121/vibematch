@@ -147,8 +147,11 @@ section[data-testid="stSidebar"] { display: none; }
   background: transparent !important;
   box-shadow: none !important;
 }
-.stTextInput {
-  margin-bottom: 10px !important;
+[data-testid="stHorizontalBlock"] {
+  overflow: visible !important;
+}
+[data-testid="column"] {
+  overflow: visible !important;
 }
 .stTextInput > div > div > input {
   background: rgba(24,28,42,0.55) !important;
