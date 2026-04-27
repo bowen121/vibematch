@@ -147,6 +147,13 @@ section[data-testid="stSidebar"] { display: none; }
   background: transparent !important;
   box-shadow: none !important;
 }
+.stTextInput > div > div {
+  border-radius: 999px !important;
+  overflow: visible !important;
+}
+.stTextInput > div {
+  overflow: visible !important;
+}
 [data-testid="stHorizontalBlock"] {
   overflow: visible !important;
 }
