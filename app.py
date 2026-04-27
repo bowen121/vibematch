@@ -160,30 +160,40 @@ section[data-testid="stSidebar"] { display: none; }
 [data-testid="column"] {
   overflow: visible !important;
 }
-.stTextInput > div > div > input {
+[data-testid="stChatInput"] {
+  position: relative !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  max-width: 760px !important;
+  margin: 0 auto !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+[data-testid="stChatInput"] > div {
   background: rgba(24,28,42,0.55) !important;
   border: 1px solid var(--line) !important;
   border-radius: 999px !important;
-  color: var(--ink-0) !important;
-  font-family: var(--serif) !important;
-  font-size: 18px !important; font-style: italic !important;
-  height: 58px !important;
-  padding: 0 24px !important;
-  box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
   backdrop-filter: blur(14px) !important;
-  box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
-  transition: border-color 300ms, box-shadow 300ms !important;
+  box-shadow: inset 0 1px 0 rgba(245,243,238,0.06) !important;
 }
-.stTextInput > div > div > input:focus {
-  border-color: rgba(212,165,116,0.5) !important;
-  box-shadow: inset 0 1px 0 rgba(245,243,238,0.08), 0 0 0 4px rgba(212,165,116,0.06),
-              0 30px 100px -30px rgba(212,165,116,0.4) !important;
-  outline: none !important;
+[data-testid="stChatInput"] textarea {
+  font-family: var(--serif) !important;
+  font-size: 18px !important;
+  font-style: italic !important;
+  color: var(--ink-0) !important;
+  background: transparent !important;
 }
-.stTextInput > div > div > input::placeholder { color: var(--ink-3) !important; }
-.stTextInput label { display: none !important; }
-.stTextInput > div { border: none !important; box-shadow: none !important; background: transparent !important; }
-
+[data-testid="stChatInput"] textarea::placeholder {
+  color: var(--ink-3) !important;
+}
+[data-testid="stChatInput"] button {
+  background: linear-gradient(180deg, #d4a574, #b8895d) !important;
+  border-radius: 999px !important;
+  border: none !important;
+}
 [data-testid="stButton"] button {
   background: rgba(24,28,42,0.4) !important;
   border: 1px solid var(--line) !important;
