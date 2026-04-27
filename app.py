@@ -416,13 +416,13 @@ components.html(f"""
     cursor: pointer;
     white-space: nowrap;
     box-shadow: 0 0 0 1px rgba(220,180,130,0.4),
-                0 0 20px rgba(212,165,116,0.5);
+                0 0 18px rgba(212,165,116,0.5);
     transition: box-shadow 300ms, background 300ms;
   }}
   .vm-search-form button:hover {{
     background: linear-gradient(180deg, #e0b882, #c99a5e);
     box-shadow: 0 0 0 1px rgba(220,180,130,0.6),
-                0 0 30px rgba(212,165,116,0.75);
+                0 0 28px rgba(212,165,116,0.75);
   }}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@500&display=swap" rel="stylesheet">
