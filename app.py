@@ -13,11 +13,13 @@ import torch
 import yaml
 from transformers import DistilBertTokenizerFast
 
+'''
 from src.model.classifier import GenreClassifier
 from src.model.encoder import VibeMatchEncoder
 from src.retrieval.engine import load_index
 from src.retrieval.search import SearchResult
 from src.retrieval.search import query as faiss_query
+'''
 
 
 # ── Page config ──────────────────────────────────────────────────────────────
@@ -39,10 +41,9 @@ def load_config() -> dict:
 
 
 # ── Models ───────────────────────────────────────────────────────────────────
-
+'''
 @st.cache_resource
 def load_models(cfg: dict):
-    """Load encoder, classifier, FAISS index, and tokenizer. Cached across reruns."""
     with open("configs/train_config.yaml") as f:
         train_cfg = yaml.safe_load(f)
 
@@ -61,11 +62,10 @@ def load_models(cfg: dict):
 
     tokenizer = DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased")
 
-    # Optional genre vocab saved alongside the index by build_index.py
     vocab_path = Path(cfg["index_path"]).with_suffix(".bin.vocab.json")
     vocab: list[str] = json.loads(vocab_path.read_text()) if vocab_path.exists() else []
 
-    return encoder, classifier, index, metadata, tokenizer, vocab, device
+    return encoder, index, metadata, tokenizer, vocab, device, classifier
 
 
 def run_search(
@@ -107,7 +107,7 @@ def run_search(
 
     return results
 
-
+'''
 # ── Global CSS ────────────────────────────────────────────────────────────────
 
 GLOBAL_CSS = """
@@ -404,7 +404,7 @@ for col, prompt in zip(chip_cols, EXAMPLE_PROMPTS):
 st.markdown("</div>", unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Inference
+'''
 if match_clicked and query_input.strip():
     st.session_state.last_query = query_input.strip()
     with st.spinner(""):
@@ -418,7 +418,7 @@ if match_clicked and query_input.strip():
         except Exception as e:
             st.error(f"Search failed: {e}")
             st.session_state.results = []
-
+'''
 # Results
 if st.session_state.results or st.session_state.loading:
     n = len(st.session_state.results)
