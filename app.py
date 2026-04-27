@@ -145,6 +145,7 @@ section[data-testid="stSidebar"] { display: none; }
 .stTextInput > div > div,
 .stTextInput > div > div > input {
   border-radius: 999px !important;
+  padding: 0px 24px 20px 24px !important;
 }
 
 
@@ -156,7 +157,6 @@ section[data-testid="stSidebar"] { display: none; }
   font-family: var(--serif) !important;
   font-size: 18px !important; font-style: italic !important;
   height: 58px !important;
-  padding: 0px 24px 10px 24px !important;
   backdrop-filter: blur(14px) !important;
   box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
   transition: border-color 300ms, box-shadow 300ms !important;
