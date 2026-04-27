@@ -207,7 +207,14 @@ section[data-testid="stSidebar"] { display: none; }
   background: rgba(30,28,20,0.45) !important;
   box-shadow: 0 0 0 1px rgba(212,165,116,0.18), 0 0 30px rgba(212,165,116,0.2) !important;
 }
-
+[data-testid="stCustomComponentV1"] {
+  width: 100% !important;
+}
+[data-testid="stCustomComponentV1"] iframe {
+  width: 100% !important;
+  border: none !important;
+  display: block !important;
+}
 iframe {
   width: 100% !important;
 }
@@ -415,8 +422,10 @@ components.html(f"""
 <style>
   .vm-search-wrap {{
     max-width: 960px;
+    width: 100%;
     margin: 0 auto;
     padding: 0 40px;
+    box-sizing: border-box;
   }}
   .vm-search-form {{
     display: flex;
@@ -498,21 +507,51 @@ components.html(f"""
 """, height=80, scrolling=False)
 
 # Chips
-EXAMPLE_PROMPTS = [
-    "cozy autumn afternoon",
-    "90s sci-fi paranoia",
-    "sunlit Mediterranean nostalgia",
-    "rainy Tokyo noir",
-]
 
-_, c1, c2, c3, c4, _ = st.columns([2, 1.5, 1.5, 1.5, 1.5, 2])
-chip_cols = [c1, c2, c3, c4]
-for col, prompt in zip(chip_cols, EXAMPLE_PROMPTS):
-    with col:
-        if st.button(prompt, key=f"chip_{prompt}"):
-            st.session_state["query_input"] = prompt
-            match_clicked = True
-            query_input = prompt
+components.html(f"""
+<style>
+  html, body {{ margin: 0; padding: 0; background: transparent; }}
+  .chips {{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 12px 0;
+  }}
+  .chip {{
+    appearance: none;
+    background: rgba(24,28,42,0.4);
+    border: 1px solid rgba(245,243,238,0.08);
+    color: #c7c4bc;
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 220ms ease;
+  }}
+  .chip:hover {{
+    border-color: rgba(212,165,116,0.4);
+    color: #f5f3ee;
+    background: rgba(30,28,20,0.45);
+    box-shadow: 0 0 0 1px rgba(212,165,116,0.18), 0 0 30px rgba(212,165,116,0.2);
+  }}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300&display=swap" rel="stylesheet">
+<div class="chips">
+  <button class="chip" onclick="setQuery('cozy autumn afternoon')">cozy autumn afternoon</button>
+  <button class="chip" onclick="setQuery('90s sci-fi paranoia')">90s sci-fi paranoia</button>
+  <button class="chip" onclick="setQuery('sunlit Mediterranean nostalgia')">sunlit Mediterranean nostalgia</button>
+  <button class="chip" onclick="setQuery('rainy Tokyo noir')">rainy Tokyo noir</button>
+</div>
+<script>
+  function setQuery(q) {{
+    window.parent.location.href = window.parent.location.pathname + '?q=' + encodeURIComponent(q);
+  }}
+</script>
+""", height=60, scrolling=False)
 
 '''
 if match_clicked and query_input.strip():
