@@ -153,6 +153,7 @@ iframe {
 [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlock"] {
   width: 100% !important;
 }
+h1 a, h2 a, h3 a { display: none !important; }
 /* Card interactions */
 .vm-card:hover .vm-halo  { opacity: 0.95 !important; transform: scale(1.05) !important; }
 .vm-card:hover .vm-cover { transform: translateY(-6px) !important; box-shadow: 0 30px 60px -20px rgba(5,6,12,0.8) !important; }
