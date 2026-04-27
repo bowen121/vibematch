@@ -160,40 +160,30 @@ section[data-testid="stSidebar"] { display: none; }
 [data-testid="column"] {
   overflow: visible !important;
 }
-[data-testid="stChatInput"] {
-  position: relative !important;
-  bottom: auto !important;
-  left: auto !important;
-  right: auto !important;
-  max-width: 760px !important;
-  margin: 0 auto !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-}
-[data-testid="stChatInput"] > div {
+.stTextInput > div > div > input {
   background: rgba(24,28,42,0.55) !important;
   border: 1px solid var(--line) !important;
   border-radius: 999px !important;
-  backdrop-filter: blur(14px) !important;
-  box-shadow: inset 0 1px 0 rgba(245,243,238,0.06) !important;
-}
-[data-testid="stChatInput"] textarea {
-  font-family: var(--serif) !important;
-  font-size: 18px !important;
-  font-style: italic !important;
   color: var(--ink-0) !important;
-  background: transparent !important;
+  font-family: var(--serif) !important;
+  font-size: 18px !important; font-style: italic !important;
+  height: 58px !important;
+  padding: 0 24px !important;
+  box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
+  backdrop-filter: blur(14px) !important;
+  box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
+  transition: border-color 300ms, box-shadow 300ms !important;
 }
-[data-testid="stChatInput"] textarea::placeholder {
-  color: var(--ink-3) !important;
+.stTextInput > div > div > input:focus {
+  border-color: rgba(212,165,116,0.5) !important;
+  box-shadow: inset 0 1px 0 rgba(245,243,238,0.08), 0 0 0 4px rgba(212,165,116,0.06),
+              0 30px 100px -30px rgba(212,165,116,0.4) !important;
+  outline: none !important;
 }
-[data-testid="stChatInput"] button {
-  background: linear-gradient(180deg, #d4a574, #b8895d) !important;
-  border-radius: 999px !important;
-  border: none !important;
-}
+.stTextInput > div > div > input::placeholder { color: var(--ink-3) !important; }
+.stTextInput label { display: none !important; }
+.stTextInput > div { border: none !important; box-shadow: none !important; background: transparent !important; }
+
 [data-testid="stButton"] button {
   background: rgba(24,28,42,0.4) !important;
   border: 1px solid var(--line) !important;
@@ -432,8 +422,90 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-query_input = st.chat_input("a lonely journey through a neon-lit dystopian city")
-match_clicked = query_input is not None
+params = st.query_params
+query_input = params.get("q", "")
+match_clicked = bool(query_input)
+
+components.html(f"""
+<style>
+  .vm-search-wrap {{
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }}
+  .vm-search-form {{
+    display: flex;
+    align-items: center;
+    padding: 8px 8px 8px 22px;
+    border-radius: 999px;
+    background: rgba(24,28,42,0.55);
+    border: 1px solid rgba(245,243,238,0.08);
+    backdrop-filter: blur(14px);
+    box-shadow: inset 0 1px 0 rgba(245,243,238,0.06);
+    transition: border-color 300ms, box-shadow 300ms;
+  }}
+  .vm-search-form:focus-within {{
+    border-color: rgba(212,165,116,0.5);
+    box-shadow: inset 0 1px 0 rgba(245,243,238,0.08),
+                0 0 0 4px rgba(212,165,116,0.06),
+                0 30px 100px -30px rgba(212,165,116,0.4);
+  }}
+  .vm-search-form input {{
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #f5f3ee;
+    font-family: 'Instrument Serif', serif;
+    font-size: 18px;
+    font-style: italic;
+    padding: 14px 4px;
+    min-width: 0;
+  }}
+  .vm-search-form input::placeholder {{
+    color: #555250;
+  }}
+  .vm-search-form button {{
+    appearance: none;
+    border: none;
+    padding: 0 22px;
+    height: 46px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #d4a574, #b8895d);
+    color: #1a1308;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 0 0 1px rgba(220,180,130,0.4),
+                0 0 30px rgba(212,165,116,0.45);
+    transition: box-shadow 300ms, background 300ms;
+  }}
+  .vm-search-form button:hover {{
+    background: linear-gradient(180deg, #e0b882, #c99a5e);
+    box-shadow: 0 0 0 1px rgba(220,180,130,0.6),
+                0 0 50px rgba(212,165,116,0.7);
+  }}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@500&display=swap" rel="stylesheet">
+<div class="vm-search-wrap">
+  <form class="vm-search-form" onsubmit="submitQuery(event)">
+    <input id="vm-input" type="text" placeholder="a lonely journey through a neon-lit dystopian city" value="{query_input}" autocomplete="off" spellcheck="false" />
+    <button type="submit">Match ↗</button>
+  </form>
+</div>
+<script>
+  function submitQuery(e) {{
+    e.preventDefault();
+    var val = document.getElementById('vm-input').value.trim();
+    if (!val) return;
+    window.parent.location.href = window.parent.location.pathname + '?q=' + encodeURIComponent(val);
+  }}
+</script>
+""", height=80, scrolling=False)
 
 # Chips
 EXAMPLE_PROMPTS = [
@@ -453,7 +525,7 @@ for col, prompt in zip(chip_cols, EXAMPLE_PROMPTS):
             query_input = prompt
 
 '''
-if match_clicked:
+if match_clicked and query_input.strip():
     st.session_state.last_query = query_input.strip()
     with st.spinner(""):
         try:
@@ -512,5 +584,6 @@ st.markdown("""
   NYU CSCI-UA Final Project <span style="margin:0 10px;">·</span> 2026
 </footer>
 """, unsafe_allow_html=True)
+
 
 
