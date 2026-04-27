@@ -179,7 +179,7 @@ section[data-testid="stSidebar"] { display: none; }
 }
 
 /* Chip buttons */
-.vm-chip-btn > [data-testid="stButton"] > button {
+.vm-chip-btn [data-testid="stButton"] button {
   background: rgba(24,28,42,0.4) !important;
   border: 1px solid var(--line) !important;
   color: var(--ink-1) !important; border-radius: 999px !important;
@@ -188,7 +188,7 @@ section[data-testid="stSidebar"] { display: none; }
   height: auto !important; width: 100% !important;
   backdrop-filter: blur(10px) !important; box-shadow: none !important;
 }
-.vm-chip-btn > [data-testid="stButton"] > button:hover {
+.vm-chip-btn [data-testid="stButton"] button:hover {
   border-color: rgba(139,159,244,0.4) !important; color: var(--ink-0) !important;
   background: rgba(30,35,60,0.45) !important;
   box-shadow: 0 0 0 1px rgba(139,159,244,0.18), 0 0 30px rgba(139,159,244,0.2) !important;
@@ -199,13 +199,14 @@ section[data-testid="stSidebar"] { display: none; }
 .vm-card:hover .vm-cover { transform: translateY(-6px) !important; box-shadow: 0 30px 60px -20px rgba(5,6,12,0.8) !important; }
 .vm-card:hover .vm-score { opacity: 1 !important; transform: translateY(0) !important; }
 
+.stTextInput > div > div > input { height: 58px !important; padding: 0 24px !important; }
+
 @keyframes vm-shimmer { 0% { transform: translateX(-60%); } 100% { transform: translateX(160%); } }
 @keyframes vm-pulse   { 0%,100% { opacity:.4; transform:scale(.85); } 50% { opacity:1; transform:scale(1); } }
 </style>
 """
 
-# ── Atmospheric background ────────────────────────────────────────────────────
-# Injects canvas + stars.js into the parent Streamlit page via window.parent.document.
+# ── Lights background ────────────────────────────────────────────────────
 
 STARS_INJECTOR = """
 <script>
@@ -230,7 +231,7 @@ STARS_INJECTOR = """
   doc.body.appendChild(ln);
 
   var s=doc.createElement('script');
-  s.textContent='(function(){var cv=document.getElementById("vm-stars"),ln=document.getElementById("vm-lantern");if(!cv)return;var cx=cv.getContext("2d",{alpha:true}),W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2),st=[],mx={x:-9999,y:-9999,has:false},tg={x:-9999,y:-9999};function hue(){var r=Math.random();if(r<.06)return{h:60,c:.07};if(r<.12)return{h:265,c:.08};if(r<.16)return{h:200,c:.05};return{h:80,c:.012};}function build(){var N=Math.max(120,Math.min(900,Math.round(W*H/1800)));st=[];for(var i=0;i<N;i++){var z=.25+Math.pow(Math.random(),2),hc=hue();st.push({x:Math.random()*W,y:Math.random()*H,z:z,r:(.4+Math.random()*1.6)*z,ba:.18+Math.random()*.55,ts:.0006+Math.random()*.0018,tp:Math.random()*Math.PI*2,vx:(Math.random()-.5)*.018*z,vy:(Math.random()-.5)*.018*z,h:hc.h,c:hc.c});}}function resize(){W=cv.clientWidth=window.innerWidth;H=cv.clientHeight=window.innerHeight;cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cx.setTransform(DPR,0,0,DPR,0,0);build();}window.addEventListener("resize",resize);window.addEventListener("mousemove",function(e){tg.x=e.clientX;tg.y=e.clientY;mx.has=true;});window.addEventListener("mouseleave",function(){mx.has=false;tg.x=-9999;tg.y=-9999;});var t=0;function frame(){t++;if(mx.x===-9999){mx.x=tg.x;mx.y=tg.y;}mx.x+=(tg.x-mx.x)*.12;mx.y+=(tg.y-mx.y)*.12;if(ln&&mx.has){ln.style.transform="translate3d("+(mx.x-12)+"px,"+(mx.y-12)+"px,0)";}else if(ln){ln.style.transform="translate3d(-200px,-200px,0)";}cx.clearRect(0,0,W,H);if(mx.has){var g=cx.createRadialGradient(mx.x,mx.y,0,mx.x,mx.y,220);g.addColorStop(0,"rgba(245,240,220,.1)");g.addColorStop(.4,"rgba(235,225,200,.04)");g.addColorStop(1,"rgba(0,0,0,0)");cx.fillStyle=g;cx.fillRect(mx.x-240,mx.y-240,480,480);}var R2=78400;for(var i=0;i<st.length;i++){var s=st[i];s.x+=s.vx;s.y+=s.vy;if(s.x<-10)s.x=W+10;if(s.x>W+10)s.x=-10;if(s.y<-10)s.y=H+10;if(s.y>H+10)s.y=-10;var px=s.x,py=s.y;if(mx.has){px=s.x-(mx.x-W/2)*.012*s.z;py=s.y-(mx.y-H/2)*.012*s.z;}var prox=0;if(mx.has){var dx=px-mx.x,dy=py-mx.y,d2=dx*dx+dy*dy;if(d2<R2)prox=1-d2/R2;}var dim=mx.has?(.55+.45*prox):1,tw=.85+.15*Math.sin(t*s.ts*16+s.tp),alpha=Math.max(0,Math.min(1,s.ba*dim*tw+prox*.35)),r=s.r*(1+prox*.6),h=cx.createRadialGradient(px,py,0,px,py,r*6);h.addColorStop(0,"rgba(235,228,215,"+(alpha*.9)+")");h.addColorStop(.5,"rgba(220,215,200,"+(alpha*.18)+")");h.addColorStop(1,"rgba(0,0,0,0)");cx.fillStyle=h;cx.beginPath();cx.arc(px,py,r*6,0,Math.PI*2);cx.fill();cx.fillStyle="rgba(252,250,245,"+alpha+")";cx.beginPath();cx.arc(px,py,r,0,Math.PI*2);cx.fill();}requestAnimationFrame(frame);}resize();requestAnimationFrame(frame);})();';
+  s.textContent='(function(){var cv=document.getElementById("vm-stars"),ln=document.getElementById("vm-lantern");if(!cv)return;var cx=cv.getContext("2d",{alpha:true}),W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2),st=[],mx={x:-9999,y:-9999,has:false},tg={x:-9999,y:-9999};function hue(){var r=Math.random();if(r<.06)return{h:60,c:.07};if(r<.12)return{h:265,c:.08};if(r<.16)return{h:200,c:.05};return{h:80,c:.012};}function build(){var N=Math.max(80,Math.min(350,Math.round(W*H/4500)));st=[];for(var i=0;i<N;i++){var z=.25+Math.pow(Math.random(),2),hc=hue();st.push({x:Math.random()*W,y:Math.random()*H,z:z,r:(.4+Math.random()*1.6)*z,ba:.18+Math.random()*.55,ts:.0006+Math.random()*.0018,tp:Math.random()*Math.PI*2,vx:(Math.random()-.5)*.018*z,vy:(Math.random()-.5)*.018*z,h:hc.h,c:hc.c});}}function resize(){W=cv.clientWidth=window.innerWidth;H=cv.clientHeight=window.innerHeight;cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cx.setTransform(DPR,0,0,DPR,0,0);build();}window.addEventListener("resize",resize);window.addEventListener("mousemove",function(e){tg.x=e.clientX;tg.y=e.clientY;mx.has=true;});window.addEventListener("mouseleave",function(){mx.has=false;tg.x=-9999;tg.y=-9999;});var t=0;function frame(){t++;if(mx.x===-9999){mx.x=tg.x;mx.y=tg.y;}mx.x+=(tg.x-mx.x)*.12;mx.y+=(tg.y-mx.y)*.12;if(ln&&mx.has){ln.style.transform="translate3d("+(mx.x-12)+"px,"+(mx.y-12)+"px,0)";}else if(ln){ln.style.transform="translate3d(-200px,-200px,0)";}cx.clearRect(0,0,W,H);if(mx.has){var g=cx.createRadialGradient(mx.x,mx.y,0,mx.x,mx.y,220);g.addColorStop(0,"rgba(245,240,220,.1)");g.addColorStop(.4,"rgba(235,225,200,.04)");g.addColorStop(1,"rgba(0,0,0,0)");cx.fillStyle=g;cx.fillRect(mx.x-240,mx.y-240,480,480);}var R2=78400;for(var i=0;i<st.length;i++){var s=st[i];s.x+=s.vx;s.y+=s.vy;if(s.x<-10)s.x=W+10;if(s.x>W+10)s.x=-10;if(s.y<-10)s.y=H+10;if(s.y>H+10)s.y=-10;var px=s.x,py=s.y;if(mx.has){px=s.x-(mx.x-W/2)*.012*s.z;py=s.y-(mx.y-H/2)*.012*s.z;}var prox=0;if(mx.has){var dx=px-mx.x,dy=py-mx.y,d2=dx*dx+dy*dy;if(d2<R2)prox=1-d2/R2;}var dim=mx.has?(.55+.45*prox):1,tw=.85+.15*Math.sin(t*s.ts*16+s.tp),alpha=Math.max(0,Math.min(1,s.ba*dim*tw+prox*.35)),r=s.r*(1+prox*.6),h=cx.createRadialGradient(px,py,0,px,py,r*6);h.addColorStop(0,"rgba(235,228,215,"+(alpha*.9)+")");h.addColorStop(.5,"rgba(220,215,200,"+(alpha*.18)+")");h.addColorStop(1,"rgba(0,0,0,0)");cx.fillStyle=h;cx.beginPath();cx.arc(px,py,r*6,0,Math.PI*2);cx.fill();cx.fillStyle="rgba(252,250,245,"+alpha+")";cx.beginPath();cx.arc(px,py,r,0,Math.PI*2);cx.fill();}requestAnimationFrame(frame);}resize();requestAnimationFrame(frame);})();';
   doc.body.appendChild(s);
 })();
 </script>
@@ -349,7 +350,23 @@ cfg = load_config()
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 components.html(STARS_INJECTOR, height=0, scrolling=False)
 
-# Hero
+st.markdown("""
+<div style="position:relative;z-index:2;display:flex;align-items:center;
+  justify-content:space-between;padding:28px 60px 0;color:var(--ink-2);
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;">
+  <span style="display:inline-flex;align-items:center;gap:10px;color:var(--ink-1);">
+    <span style="width:6px;height:6px;border-radius:50%;background:#d4a574;
+      box-shadow:0 0 10px 1px rgba(212,165,116,.55);"></span>
+    VibeMatch
+  </span>
+  <nav style="display:flex;gap:28px;">
+    <a href="#" style="color:var(--ink-2);text-decoration:none;">Discover</a>
+    <a href="#" style="color:var(--ink-2);text-decoration:none;">About</a>
+    <a href="#" style="color:var(--ink-2);text-decoration:none;">Method</a>
+  </nav>
+</div>
+""", unsafe_allow_html=True)
+
 st.markdown("""
 <div style="position:relative;z-index:2;text-align:center;padding:14vh 40px 6vh;">
   <div style="font-family:var(--mono);font-size:11px;letter-spacing:.32em;
@@ -364,7 +381,7 @@ st.markdown("""
     font-size:clamp(64px,11vw,140px);line-height:.95;letter-spacing:-.02em;
     margin:0;color:var(--ink-0);
     text-shadow:0 0 40px rgba(235,230,215,.18),0 0 80px rgba(139,159,244,.12);">
-    Find your <em>vibe.</em>
+    Find your <em style="color:#e0b882;">vibe.</em>
   </h1>
   <p style="margin:22px auto 0;max-width:540px;color:var(--ink-2);
     font-size:17px;font-weight:300;line-height:1.5;">
