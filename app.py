@@ -118,7 +118,9 @@ GLOBAL_CSS = """
   --bg-0: #0b0e17;
   --ink-0: #f5f3ee; --ink-1: #c7c4bc; --ink-2: #8a877f; --ink-3: #555250;
   --line: rgba(245,243,238,0.08); --line-2: rgba(245,243,238,0.14);
-  --accent: #8b9ff4; --accent-soft: rgba(139,159,244,0.18); --accent-glow: rgba(139,159,244,0.55);
+  --accent: #d4a574;
+  --accent-soft: rgba(212,165,116,0.18);
+  --accent-glow: rgba(212,165,116,0.55);
   --serif: 'Instrument Serif','Times New Roman',serif;
   --sans: 'Inter Tight',ui-sans-serif,sans-serif;
   --mono: 'JetBrains Mono',ui-monospace,monospace;
@@ -159,7 +161,7 @@ section[data-testid="stSidebar"] { display: none; }
 
 /* Match button */
 [data-testid="stButton"] > button {
-  background: linear-gradient(180deg, #9aaff6, #7a93f0) !important;
+  background: linear-gradient(180deg, #e0b882, #c99a5e) !important;
   color: #1a1f38 !important; border: none !important;
   border-radius: 999px !important; font-family: var(--sans) !important;
   font-size: 13px !important; font-weight: 500 !important;
@@ -170,7 +172,7 @@ section[data-testid="stSidebar"] { display: none; }
 }
 [data-testid="stButton"] > button:hover {
   box-shadow: 0 0 0 1px rgba(180,195,255,0.6), 0 0 50px rgba(139,159,244,0.7) !important;
-  background: linear-gradient(180deg, #a8baf8, #8aa0f2) !important;
+  background: linear-gradient(180deg, #e8c490, #d4a76a) !important;
 }
 
 /* Chip buttons */
@@ -369,7 +371,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-col_input, col_btn = st.columns([5, 1])
+_, col_input, col_btn, _ = st.columns([2, 6, 1, 2], gap="small")
 with col_input:
     query_input = st.text_input(
         "",
@@ -388,7 +390,8 @@ EXAMPLE_PROMPTS = [
     "rainy Tokyo noir",
 ]
 
-chip_cols = st.columns(len(EXAMPLE_PROMPTS))
+_, c1, c2, c3, c4, _ = st.columns([2, 2, 2, 2, 2, 2])
+chip_cols = [c1, c2, c3, c4]
 for col, prompt in zip(chip_cols, EXAMPLE_PROMPTS):
     with col:
         if st.button(prompt, key=f"chip_{prompt}"):
