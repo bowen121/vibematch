@@ -208,23 +208,8 @@ section[data-testid="stSidebar"] { display: none; }
   box-shadow: 0 0 0 1px rgba(212,165,116,0.18), 0 0 30px rgba(212,165,116,0.2) !important;
 }
 
-/* Match button 
-[data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"]:nth-child(3) [data-testid="stButton"] button {
-  background: linear-gradient(180deg, #d4a574, #b8895d) !important;
-  color: #1a1308 !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.16em !important;
-  text-transform: uppercase !important;
-  padding: 0 28px !important;
-  height: 46px !important;
-  margin: 6px 6px 0 0 !important;
-  border: none !important;
-  box-shadow: 0 0 0 1px rgba(220,180,130,0.4), 0 0 30px rgba(212,165,116,0.45) !important;
-}
-[data-testid="stHorizontalBlock"]:first-of-type [data-testid="column"]:nth-child(3) [data-testid="stButton"] butto:hover {
-  background: linear-gradient(180deg, #e0b882, #c99a5e) !important;
-  box-shadow: 0 0 0 1px rgba(220,180,130,0.6), 0 0 50px rgba(212,165,116,0.7) !important;
+iframe {
+  width: 100% !important;
 }
 
 /* Card interactions */
