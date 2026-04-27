@@ -162,36 +162,47 @@ section[data-testid="stSidebar"] { display: none; }
 .stTextInput label { display: none !important; }
 .stTextInput > div { border: none !important; box-shadow: none !important; background: transparent !important; }
 
-/* Match button */
-[data-testid="stButton"] > button {
-  background: linear-gradient(180deg, #e0b882, #c99a5e) !important;
-  color: #1a1f38 !important; border: none !important;
-  border-radius: 999px !important; font-family: var(--sans) !important;
-  font-size: 13px !important; font-weight: 500 !important;
-  letter-spacing: 0.16em !important; text-transform: uppercase !important;
-  padding: 16px 28px !important; height: 58px !important; width: 100% !important;
-  box-shadow: 0 0 0 1px rgba(180,195,255,0.4), 0 0 30px rgba(139,159,244,0.45) !important;
-  transition: box-shadow 300ms !important;
-}
-[data-testid="stButton"] > button:hover {
-  box-shadow: 0 0 0 1px rgba(180,195,255,0.6), 0 0 50px rgba(139,159,244,0.7) !important;
-  background: linear-gradient(180deg, #e8c490, #d4a76a) !important;
-}
-
-/* Chip buttons */
-.vm-chip-btn [data-testid="stButton"] button {
+/* All buttons default to frosted chip style */
+[data-testid="stButton"] button {
   background: rgba(24,28,42,0.4) !important;
   border: 1px solid var(--line) !important;
-  color: var(--ink-1) !important; border-radius: 999px !important;
-  font-family: var(--sans) !important; font-size: 12px !important;
-  font-weight: 300 !important; padding: 8px 14px !important;
-  height: auto !important; width: 100% !important;
-  backdrop-filter: blur(10px) !important; box-shadow: none !important;
+  color: var(--ink-1) !important;
+  border-radius: 999px !important;
+  font-family: var(--sans) !important;
+  font-size: 12px !important;
+  font-weight: 300 !important;
+  padding: 8px 14px !important;
+  height: auto !important;
+  width: 100% !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(10px) !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  transition: all 220ms !important;
 }
-.vm-chip-btn [data-testid="stButton"] button:hover {
-  border-color: rgba(139,159,244,0.4) !important; color: var(--ink-0) !important;
-  background: rgba(30,35,60,0.45) !important;
-  box-shadow: 0 0 0 1px rgba(139,159,244,0.18), 0 0 30px rgba(139,159,244,0.2) !important;
+[data-testid="stButton"] button:hover {
+  border-color: rgba(212,165,116,0.4) !important;
+  color: var(--ink-0) !important;
+  background: rgba(30,28,20,0.45) !important;
+  box-shadow: 0 0 0 1px rgba(212,165,116,0.18), 0 0 30px rgba(212,165,116,0.2) !important;
+}
+
+/* Override: Match button (it's the only button in a 4-column row) */
+[data-testid="stHorizontalBlock"]:has([data-testid="column"]:nth-child(4)):not(:has([data-testid="column"]:nth-child(5))) [data-testid="stButton"] button {
+  background: linear-gradient(180deg, #d4a574, #b8895d) !important;
+  color: #1a1308 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  padding: 0 28px !important;
+  height: 58px !important;
+  border: none !important;
+  box-shadow: 0 0 0 1px rgba(220,180,130,0.4), 0 0 30px rgba(212,165,116,0.45) !important;
+}
+[data-testid="stHorizontalBlock"]:has([data-testid="column"]:nth-child(4)):not(:has([data-testid="column"]:nth-child(5))) [data-testid="stButton"] button:hover {
+  background: linear-gradient(180deg, #e0b882, #c99a5e) !important;
+  box-shadow: 0 0 0 1px rgba(220,180,130,0.6), 0 0 50px rgba(212,165,116,0.7) !important;
 }
 
 /* Card interactions */
