@@ -396,8 +396,9 @@ components.html(f"""
   }}
   body {{
     margin: 0;
-    padding: 0;
+    padding: 8px 0;
     background: transparent;
+    overflow: visible;
   }}
   .vm-search-form button {{
     appearance: none;
@@ -439,13 +440,16 @@ components.html(f"""
     window.parent.location.href = window.parent.location.pathname + '?q=' + encodeURIComponent(val);
   }}
 </script>
-""", height=80, scrolling=False)
-
-# Chips
+""", height=88, scrolling=False)
 
 components.html(f"""
 <style>
-  html, body {{ margin: 0; padding: 0; background: transparent; }}
+  html, body {{
+    margin: 0;
+    padding: 8px 0;
+    background: transparent;
+    overflow: visible;
+  }}
   .chips {{
     display: flex;
     justify-content: center;
@@ -486,7 +490,7 @@ components.html(f"""
     window.parent.location.href = window.parent.location.pathname + '?q=' + encodeURIComponent(q);
   }}
 </script>
-""", height=60, scrolling=False)
+""", height=70, scrolling=False)
 
 '''
 if match_clicked and query_input.strip():
