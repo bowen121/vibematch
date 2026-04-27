@@ -441,7 +441,7 @@ EXAMPLE_PROMPTS = [
     "rainy Tokyo noir",
 ]
 
-_, c1, c2, c3, c4, _ = st.columns([2, 2, 2, 2, 2, 2])
+_, c1, c2, c3, c4, _ = st.columns([2, 1.5, 1.5, 1.5, 1.5, 2])
 chip_cols = [c1, c2, c3, c4]
 for col, prompt in zip(chip_cols, EXAMPLE_PROMPTS):
     with col:
