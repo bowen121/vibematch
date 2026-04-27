@@ -495,7 +495,7 @@ if st.session_state.results or st.session_state.loading:
     )
 
     st.markdown(f"""
-<div style="max-width:1240px;margin:22px auto 80px;padding:0 40px;
+<div style="max-width:1240px;margin:60px auto 80px;padding:0 40px;
   display:grid;grid-template-columns:repeat(4,1fr);gap:28px 24px;
   position:relative;z-index:2;">
   {grid_inner}
