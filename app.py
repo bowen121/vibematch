@@ -358,7 +358,7 @@ components.html(f"""
   .vm-search-wrap {{
     max-width: 960px;
     width: 100%;
-    margin: 0 auto;
+    margin: 16px auto 0;
     padding: 0 40px;
     box-sizing: border-box;
   }}
@@ -416,13 +416,13 @@ components.html(f"""
     cursor: pointer;
     white-space: nowrap;
     box-shadow: 0 0 0 1px rgba(220,180,130,0.4),
-                0 0 30px rgba(212,165,116,0.45);
+                0 0 20px rgba(212,165,116,0.45);
     transition: box-shadow 300ms, background 300ms;
   }}
   .vm-search-form button:hover {{
     background: linear-gradient(180deg, #e0b882, #c99a5e);
     box-shadow: 0 0 0 1px rgba(220,180,130,0.6),
-                0 0 50px rgba(212,165,116,0.7);
+                0 0 30px rgba(212,165,116,0.7);
   }}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@500&display=swap" rel="stylesheet">
