@@ -429,7 +429,7 @@ match_clicked = bool(query_input)
 components.html(f"""
 <style>
   .vm-search-wrap {{
-    max-width: 860px;
+    max-width: 960px;
     margin: 0 auto;
     padding: 0 40px;
   }}
