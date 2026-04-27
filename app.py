@@ -157,6 +157,7 @@ section[data-testid="stSidebar"] { display: none; }
   font-size: 18px !important; font-style: italic !important;
   height: 58px !important;
   padding: 0 24px !important;
+  margin-bottom: 10px !important;
   box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
   backdrop-filter: blur(14px) !important;
   box-shadow: inset 0 1px 0 rgba(245,243,238,0.06), 0 30px 80px -30px rgba(5,6,12,0.8) !important;
