@@ -368,8 +368,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Search
-st.markdown('<div style="max-width:760px;margin:0 auto;padding:0 40px;position:relative;z-index:2;">', unsafe_allow_html=True)
 
 col_input, col_btn = st.columns([5, 1])
 with col_input:
@@ -390,18 +388,13 @@ EXAMPLE_PROMPTS = [
     "rainy Tokyo noir",
 ]
 
-st.markdown('<div style="margin-top:12px;">', unsafe_allow_html=True)
 chip_cols = st.columns(len(EXAMPLE_PROMPTS))
 for col, prompt in zip(chip_cols, EXAMPLE_PROMPTS):
     with col:
-        st.markdown('<div class="vm-chip-btn">', unsafe_allow_html=True)
         if st.button(prompt, key=f"chip_{prompt}"):
             st.session_state["query_input"] = prompt
             match_clicked = True
             query_input = prompt
-        st.markdown("</div>", unsafe_allow_html=True)
-st.markdown("</div>", unsafe_allow_html=True)
-st.markdown("</div>", unsafe_allow_html=True)
 
 '''
 if match_clicked and query_input.strip():
