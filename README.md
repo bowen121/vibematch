@@ -17,7 +17,7 @@ Query (text or image)
         ↓
   Learned projection head  →  256-d L2-normalized embedding
         ↓
-  FAISS IndexFlatIP  (cosine similarity over ~57k items)
+  FAISS IndexFlatIP 
         ↓
   Top-12 results  +  live MLP genre tags
 ```
