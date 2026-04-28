@@ -171,6 +171,7 @@ h1 a, h2 a, h3 a { display: none !important; }
   padding: 0 40px !important;
   box-sizing: border-box;
 }
+.vm-cover img { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; object-fit:cover !important; }
 /* Card interactions */
 .vm-card:hover .vm-halo  { opacity: 0.95 !important; transform: scale(1.05) !important; }
 .vm-card:hover .vm-cover { transform: translateY(-6px) !important; box-shadow: 0 30px 60px -20px rgba(5,6,12,0.8) !important; }
