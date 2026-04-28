@@ -401,7 +401,7 @@ if st.session_state.results or st.session_state.loading:
     count_str = f'<span>{n} results</span>' if not st.session_state.loading else ""
 
     st.markdown(f"""
-<div style="max-width:1240px;margin: 25px auto 18px;padding:0 40px;
+<div style="max-width:1240px;margin: -235px auto 18px;padding:0 40px;
   display:flex;align-items:center;justify-content:space-between;
   color:var(--ink-2);font-family:var(--mono);font-size:11px;
   letter-spacing:.18em;text-transform:uppercase;position:relative;z-index:2;">
@@ -424,7 +424,7 @@ if st.session_state.results or st.session_state.loading:
     )
 
     st.markdown(f"""
-<div style="max-width:1240px;margin: 25px auto 80px;padding:0 40px;
+<div style="max-width:1240px;margin: -180px auto 80px;padding:0 40px;
   display:grid;grid-template-columns:repeat(4,1fr);gap:28px 24px;
   position:relative;z-index:2;">
   {grid_inner}
