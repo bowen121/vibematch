@@ -438,7 +438,7 @@ st.markdown("""
       background:var(--line-2);margin-left:14px;"></span>
   </div>
   <div style="font-family:var(--serif);font-weight:300;
-    font-size:clamp(66px,11vw,142px);line-height:.95;letter-spacing:-.02em;
+    font-size:clamp(66px,11vw,145px);line-height:.95;letter-spacing:-.02em;
     margin:0;color:var(--ink-0);text-align:center;
     text-shadow:0 0 40px rgba(235,230,215,.18),0 0 80px rgba(139,159,244,.12);">
     Find your <em style="color:#e8c490;">vibe.</em>
