@@ -324,7 +324,7 @@ components.html(STARS_INJECTOR, height=0, scrolling=False)
 
 st.markdown("""
 <div style="position:relative;z-index:2;display:flex;align-items:center;
-  justify-content:space-between;padding:28px 60px 0;color:var(--ink-2);
+  justify-content:space-between;padding:18px 60px 0;color:var(--ink-2);
   font-size:12px;letter-spacing:.14em;text-transform:uppercase;">
   <span style="display:inline-flex;align-items:center;gap:10px;color:var(--ink-1);">
     <span style="width:6px;height:6px;border-radius:50%;background:#d4a574;
