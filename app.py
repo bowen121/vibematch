@@ -466,7 +466,7 @@ if st.session_state.loading:
 if st.session_state.results or st.session_state.loading:
     n = len(st.session_state.results)
     state_word = "resolving" if st.session_state.loading else "matched"
-    count_str = f'<span>top {n}</span>' if not st.session_state.loading else ""
+    count_str = f'<span>top {n} results</span>' if not st.session_state.loading else ""
 
     st.markdown(f"""
 <div style="max-width:1240px;margin: 25px auto 18px;padding:0 40px;
