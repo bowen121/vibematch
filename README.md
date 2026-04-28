@@ -2,7 +2,7 @@
 
 Aesthetic-driven media retrieval system that matches movie/book vibes using a custom-built CLIP framework with contrastive learning, cosine similarity search, and a live MLP genre classifier.
 
-Describe a mood — *"a lonely journey through a neon-lit dystopian city"* — or upload an image, and VibeMatch returns the 12 most aesthetically similar movies and books from a 57,000-item index. Results are ranked by cosine similarity in a shared 256-dimensional embedding space trained jointly on visual and textual signals.
+Describe a vibe or upload an image, and VibeMatch returns the 12 most aesthetically similar movies and books from a 57,000-item index. Results are ranked by cosine similarity in a shared 256-dimensional embedding space trained jointly on visual and textual signals.
 
 ## Live Demo
 
