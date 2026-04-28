@@ -129,6 +129,9 @@ GLOBAL_CSS = """
 }
 
 #MainMenu, footer, header { visibility: hidden; }
+[data-testid="stToolbar"] { display: none !important; }
+.viewerBadge_container__r5tak { display: none !important; }
+#stDecoration { display: none !important; }
 .stDeployButton { display: none; }
 [data-testid="stStatusWidget"] { display: none !important; }
 section[data-testid="stSidebar"] { display: none; }
