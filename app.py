@@ -321,14 +321,18 @@ def build_card_html(result: SearchResult, data_root: str = ".") -> str:
     halo = _hex_to_rgba(dominant, 0.6)
     poster_url = get_poster_url(meta)
     data_uri = _encode_image(Path(data_root) / meta.get("image_path", ""))
-    img_style = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
     if poster_url and data_uri:
-        img_tag = (f'<img src="{poster_url}" style="{img_style}" alt="{title}" '
-                   f'onerror="this.onerror=null;this.src=\'{data_uri}\'" />')
+        bg = f"url('{poster_url}'),url('{data_uri}')"
     elif poster_url:
-        img_tag = f'<img src="{poster_url}" style="{img_style}" alt="{title}" />'
+        bg = f"url('{poster_url}')"
     elif data_uri:
-        img_tag = f'<img src="{data_uri}" style="{img_style}" alt="{title}" />'
+        bg = f"url('{data_uri}')"
+    else:
+        bg = None
+    if bg:
+        img_tag = (f'<div style="position:absolute;inset:0;background-image:{bg};'
+                   f'background-size:cover,cover;background-position:center,center;'
+                   f'background-repeat:no-repeat,no-repeat;"></div>')
     else:
         img_tag = ""
     tags = "".join(
