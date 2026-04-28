@@ -354,17 +354,17 @@ def build_card_html(result: SearchResult, data_root: str = ".") -> str:
       border:1px solid rgba(245,243,238,.35);border-radius:999px;
       font-family:var(--mono);font-size:10px;letter-spacing:.14em;
       text-transform:uppercase;color:rgba(245,243,238,.9);
-      background:rgba(10,12,22,.4);
+      background:rgba(10,12,22,.42);
       backdrop-filter:blur(10px) saturate(150%);
       -webkit-backdrop-filter:blur(10px) saturate(150%);">{source_label}</div>
     <div class="vm-score" style="position:absolute;top:10px;right:10px;padding:5px 9px;
       border-radius:999px;
-      background:rgba(10,12,22,.4);
+      background:rgba(10,12,22,.42);
       backdrop-filter:blur(10px) saturate(150%);-webkit-backdrop-filter:blur(10px) saturate(150%);
       border:1px solid rgba(245,243,238,.25);font-family:var(--mono);font-size:11px;
       letter-spacing:.08em;color:var(--ink-0);opacity:0;transform:translateY(-4px);
       transition:opacity 320ms,transform 320ms;">
-      match <span style="color:var(#f3bd85);font-weight:700;">{score_pct}</span>
+      match <span style="color:var(--accent);font-weight:700;">{score_pct}</span>
     </div>
   </div>
   <div style="margin-top:14px;position:relative;z-index:1;">
