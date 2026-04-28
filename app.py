@@ -135,6 +135,9 @@ GLOBAL_CSS = """
 #stDecoration { display: none !important; }
 .stDeployButton { display: none; }
 [data-testid="stStatusWidget"] { display: none !important; }
+[data-testid="stSpinner"] { display: none !important; }
+[class*="StatusWidget"] { display: none !important; }
+[class*="stSpinner"] { display: none !important; }
 section[data-testid="stSidebar"] { display: none; }
 
 .stApp { background-color: var(--bg-0) !important; }
