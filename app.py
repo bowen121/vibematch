@@ -130,6 +130,7 @@ GLOBAL_CSS = """
 
 #MainMenu, footer, header { visibility: hidden; }
 .stDeployButton { display: none; }
+[data-testid="stStatusWidget"] { display: none !important; }
 section[data-testid="stSidebar"] { display: none; }
 
 .stApp { background-color: var(--bg-0) !important; }
