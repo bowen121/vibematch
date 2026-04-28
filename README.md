@@ -2,7 +2,7 @@
 
 Aesthetic-driven media retrieval system that matches movie/book vibes using a custom-built CLIP framework with contrastive learning, cosine similarity search, and a live MLP genre classifier.
 
-Describe a vibe or upload an image, and VibeMatch returns the 12 most aesthetically similar movies and books from a 57,000-item index. Results are ranked by cosine similarity in a shared 256-dimensional embedding space trained jointly on visual and textual signals.
+Describe a vibe or upload an image, and VibeMatch returns the 12 most aesthetically similar movies and books from a 66,604-item index. Results are ranked by cosine similarity in a shared 256-dimensional embedding space trained jointly on visual and textual signals.
 
 ## Live Demo
 
@@ -63,8 +63,8 @@ pip install -r requirements.txt
 
 VibeMatch uses two Kaggle datasets:
 
-- [Movie Posters](https://www.kaggle.com/datasets/neha1703/movie-genre-from-its-poster) (~7k images)
-- [Book Covers](https://www.kaggle.com/datasets/mexwell/book-cover-dataset) (~20k images)
+- [Movie Posters](https://www.kaggle.com/datasets/neha1703/movie-genre-from-its-poster) (~9k images)
+- [Book Covers](https://www.kaggle.com/datasets/mexwell/book-cover-dataset) (~57k images)
 
 **1. Get a Kaggle API token** — go to https://www.kaggle.com/settings/account. Two options:
 
