@@ -2,6 +2,57 @@
 
 Aesthetic-driven media retrieval system that matches movie/book vibes using a custom-built CLIP framework with contrastive learning, cosine similarity search, and a live MLP genre classifier.
 
+Describe a mood — *"a lonely journey through a neon-lit dystopian city"* — or upload an image, and VibeMatch returns the 12 most aesthetically similar movies and books from a 57,000-item index. Results are ranked by cosine similarity in a shared 256-dimensional embedding space trained jointly on visual and textual signals.
+
+## Live Demo
+
+**[vibematch.streamlit.app](https://vibematch.streamlit.app)**
+
+## How It Works
+
+```
+Query (text or image)
+        ↓
+  DistilBERT / ResNet-50 backbone  (frozen)
+        ↓
+  Learned projection head  →  256-d L2-normalized embedding
+        ↓
+  FAISS IndexFlatIP  (cosine similarity over ~57k items)
+        ↓
+  Top-12 results  +  live MLP genre tags
+```
+
+1. **Text query** — tokenized with DistilBERT, CLS token projected to 256-d space.
+2. **Image query** — resized to 224×224, passed through ResNet-50 avgpool, projected to the same 256-d space.
+3. **Retrieval** — inner product search over a pre-built FAISS flat index. Because all embeddings are L2-normalized, inner product equals cosine similarity.
+4. **Genre tagging** — a lightweight MLP classifier runs on the matched item's stored image embedding and predicts genre labels in real time, independent of the query.
+
+## Model Architecture
+
+### Dual Encoder (CLIP-style)
+
+| Component | Backbone | Output dim | Trainable |
+|---|---|---|---|
+| Image encoder | ResNet-50 (ImageNet pretrained) | 2048 → 256 | Projection head only |
+| Text encoder | DistilBERT-base-uncased | 768 → 256 | Projection head only |
+
+Both projection heads share the same structure: `Linear → LayerNorm → GELU → Dropout → Linear`. Only the projection heads are trained; backbone weights are frozen throughout.
+
+**Loss:** symmetric InfoNCE contrastive loss over (image, caption) pairs within each batch. Positive pairs are matched (image, caption); all other combinations in the batch are negatives.
+
+### Genre Classifier
+
+A 4-layer MLP trained on frozen image embeddings from the trained encoder. Takes a 256-d embedding as input and outputs multi-label genre predictions. Used exclusively for live result annotation — not part of the retrieval pipeline.
+
+## Features
+
+- **Text search** — describe any mood, aesthetic, director, era, or feeling
+- **Image search** — upload a still, poster, or photo and find visually similar media
+- **Cross-modal retrieval** — text queries match books and movies in the same embedding space
+- **Live genre tagging** — genres predicted fresh per result via the MLP classifier
+- **High-res posters** — Amazon CDN images for all 57k items (no local image files required at runtime)
+- **Interactive UI** — particle canvas background with cursor tracking, built in Streamlit with a custom HTML/JS search component
+
 ## Setup
 
 ```bash
