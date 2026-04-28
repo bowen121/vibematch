@@ -363,7 +363,7 @@ def build_card_html(result: SearchResult, data_root: str = ".") -> str:
       border:1px solid rgba(245,243,238,.25);font-family:var(--mono);font-size:11px;
       letter-spacing:.08em;color:var(--ink-0);opacity:0;transform:translateY(-4px);
       transition:opacity 320ms,transform 320ms;">
-      match <span style="color:var(--accent-glow);font-weight:600;">{score_pct}</span>
+      match <span style="color:var(--accent);font-weight:700;">{score_pct}</span>
     </div>
   </div>
   <div style="margin-top:14px;position:relative;z-index:1;">
@@ -530,7 +530,7 @@ st.markdown("""
 <footer style="position:relative;z-index:2;padding:60px 40px 40px;text-align:center;
   color:var(--ink-3);font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;">
   VibeMatch <span style="margin:0 10px;">·</span>
-  NYU CSCI-UA Final Project <span style="margin:0 10px;">·</span> 2026
+  NYU CSCI-UA 473 Final Project <span style="margin:0 10px;">·</span> 2026
 </footer>
 """, unsafe_allow_html=True)
 
