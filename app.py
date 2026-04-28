@@ -34,7 +34,7 @@ from src.retrieval.search import query as faiss_query
 
 st.set_page_config(
     page_title="VibeMatch",
-    page_icon="icon_fml.png",
+    page_icon=Image.open("icon_fml.png"),
     layout="wide",
     initial_sidebar_state="collapsed",
 )
