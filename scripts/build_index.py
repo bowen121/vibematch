@@ -5,9 +5,10 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
- 
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
- 
+
+import faiss  # must come before torch to win the OpenMP init race on macOS
 import numpy as np
 import torch
 import yaml
@@ -68,61 +69,84 @@ def build(
     data_root: str = ".",
     batch_size: int = 64,
     device: str | None = None,
+    embeddings_pt: str | None = None,
 ) -> None:
+    import json
     with open(train_cfg_path) as fh:
         train_cfg = yaml.safe_load(fh)
     with open(app_cfg_path) as fh:
         app_cfg = yaml.safe_load(fh)
- 
-    projection_dim: int = train_cfg["clip"]["projection_dim"]
-    clip_weights: str = app_cfg["clip_weights_path"]
+
     index_path: str = app_cfg["index_path"]
- 
+
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"[build_index] device={device}  projection_dim={projection_dim}")
- 
+
     df = load_processed_frame(processed_dir)
     print(f"[build_index] {len(df)} items loaded from {processed_dir}")
- 
-    encoder = VibeMatchEncoder(projection_dim=projection_dim).to(device)
-    encoder.load_state_dict(torch.load(clip_weights, map_location=device))
-    encoder.eval()
-    print(f"[build_index] encoder weights loaded from {clip_weights}")
- 
-    loader = DataLoader(
-        PosterDataset(df, data_root=Path(data_root)),
-        batch_size=batch_size,
-        num_workers=4,
-        collate_fn=collate_skip_errors,
-        pin_memory=(device == "cuda"),
-    )
- 
-    all_embeddings: list[np.ndarray] = []
-    all_meta: list[dict] = []
- 
-    with torch.no_grad():
-        for batch in tqdm(loader, desc="Encoding images"):
-            if batch is None:
+
+    if embeddings_pt:
+        print(f"[build_index] loading pre-computed embeddings from {embeddings_pt}")
+        ckpt = torch.load(embeddings_pt, map_location="cpu")
+        emb_numpy = ckpt["embeddings"].numpy().astype(np.float32)
+        ids: list[str] = ckpt["ids"]
+        id_to_row = {str(id_): i for i, id_ in enumerate(df["id"])}
+        valid_indices = []
+        all_meta = []
+        for i, item_id in enumerate(tqdm(ids, desc="Building metadata")):
+            row_idx = id_to_row.get(str(item_id))
+            if row_idx is None:
                 continue
-            images, indices = batch
-            img_emb = encoder.encode_image(images.to(device))
-            all_embeddings.append(img_emb.cpu().numpy())
-            for idx in indices:
-                row = df.loc[idx]
-                with Image.open(Path(data_root) / row["image_path"]) as raw_img:
-                    dominant_color = extract_dominant_color(raw_img)
-                all_meta.append({
-                    "image_path": str(row["image_path"]),
-                    "genres": str(row["genres"]),
-                    "title": str(row.get("title", "")),
-                    "source": str(row.get("source", "")),
-                    "id": str(row.get("id", "")),
-                    "dominant_color": dominant_color,
-                })
- 
-    embeddings = normalise(np.vstack(all_embeddings).astype(np.float32))
-    print(f"[build_index] encoded {len(embeddings)} images  shape={embeddings.shape}")
+            row = df.iloc[row_idx]
+            valid_indices.append(i)
+            all_meta.append({
+                "image_path": str(row["image_path"]),
+                "genres": str(row["genres"]),
+                "title": str(row.get("title", "")),
+                "source": str(row.get("source", "")),
+                "id": str(row.get("id", "")),
+                "dominant_color": "#888888",
+            })
+        embeddings = normalise(np.ascontiguousarray(emb_numpy[valid_indices]))
+    else:
+        projection_dim: int = train_cfg["clip"]["projection_dim"]
+        clip_weights: str = app_cfg["clip_weights_path"]
+        print(f"[build_index] device={device}  projection_dim={projection_dim}")
+        encoder = VibeMatchEncoder(projection_dim=projection_dim).to(device)
+        encoder.load_state_dict(torch.load(clip_weights, map_location=device))
+        encoder.eval()
+        print(f"[build_index] encoder weights loaded from {clip_weights}")
+        loader = DataLoader(
+            PosterDataset(df, data_root=Path(data_root)),
+            batch_size=batch_size,
+            num_workers=4,
+            collate_fn=collate_skip_errors,
+            pin_memory=(device == "cuda"),
+        )
+        all_embeddings_list: list[np.ndarray] = []
+        all_meta = []
+        with torch.no_grad():
+            for batch in tqdm(loader, desc="Encoding images"):
+                if batch is None:
+                    continue
+                images, indices = batch
+                img_emb = encoder.encode_image(images.to(device))
+                all_embeddings_list.append(img_emb.cpu().numpy())
+                for idx in indices:
+                    row = df.loc[idx]
+                    with Image.open(Path(data_root) / row["image_path"]) as raw_img:
+                        dominant_color = extract_dominant_color(raw_img)
+                    all_meta.append({
+                        "image_path": str(row["image_path"]),
+                        "genres": str(row["genres"]),
+                        "title": str(row.get("title", "")),
+                        "source": str(row.get("source", "")),
+                        "id": str(row.get("id", "")),
+                        "dominant_color": dominant_color,
+                    })
+        embeddings = normalise(np.vstack(all_embeddings_list).astype(np.float32))
+
+    print(f"[build_index] {len(embeddings)} embeddings  shape={embeddings.shape}")
  
     index, metadata = build_index(embeddings, all_meta)
     save_index(index, metadata, index_path)
@@ -142,5 +166,6 @@ if __name__ == "__main__":
     parser.add_argument("--data-root", default=".")
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--device", default=None)
+    parser.add_argument("--embeddings", default=None, help="path to pre-computed embeddings.pt")
     args = parser.parse_args()
-    build(args.train_config, args.app_config, args.processed_dir, args.data_root, args.batch_size, args.device)
+    build(args.train_config, args.app_config, args.processed_dir, args.data_root, args.batch_size, args.device, args.embeddings)

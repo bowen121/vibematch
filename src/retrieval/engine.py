@@ -1,9 +1,10 @@
 """FAISS index building and saving."""
  
 from __future__ import annotations
- 
+
 import json
 import os
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 from pathlib import Path
 from typing import Any
  

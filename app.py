@@ -5,6 +5,9 @@ python -m streamlit run app.py
 
 from __future__ import annotations
 
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 import base64
 import json
 from pathlib import Path
@@ -51,22 +54,24 @@ def load_models(cfg: dict):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dim = train_cfg["clip"]["projection_dim"]
 
+    vocab_path = Path(cfg["index_path"]).with_suffix(".bin.vocab.json")
+    vocab: list[str] = json.loads(vocab_path.read_text()) if vocab_path.exists() else []
+
     encoder = VibeMatchEncoder(projection_dim=dim)
     encoder.load_state_dict(torch.load(cfg["clip_weights_path"], map_location=device))
     encoder.to(device).eval()
 
-    classifier = GenreClassifier(num_genres=len(vocab))
-    classifier.load_state_dict(torch.load(cfg["classifier_weights_path"], map_location=device))
+    classifier_state = torch.load(cfg["classifier_weights_path"], map_location=device)
+    num_genres = classifier_state["mlp.6.weight"].shape[0]
+    classifier = GenreClassifier(num_genres=num_genres)
+    classifier.load_state_dict(classifier_state)
     classifier.to(device).eval()
 
     index, metadata = load_index(cfg["index_path"])
 
     tokenizer = DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased")
 
-    vocab_path = Path(cfg["index_path"]).with_suffix(".bin.vocab.json")
-    vocab: list[str] = json.loads(vocab_path.read_text()) if vocab_path.exists() else []
-
-    return encoder, index, metadata, tokenizer, vocab, device, classifier
+    return encoder, classifier, index, metadata, tokenizer, vocab, device
 
 
 def run_search(
@@ -130,8 +135,11 @@ section[data-testid="stSidebar"] { display: none; }
 .stApp { background-color: var(--bg-0) !important; }
 .stApp > div, [data-testid="stAppViewContainer"],
 [data-testid="stVerticalBlock"], .main { background: transparent !important; }
+[data-testid="stVerticalBlock"],
+[data-testid="stVerticalBlockSizeContainer"] { width: 100% !important; }
 .block-container { padding: 0 !important; max-width: 100% !important; }
-.element-container { margin: 0 !important; }
+.element-container { margin: 0 !important; width: 100% !important; }
+[data-testid="stMarkdownContainer"] { width: 100% !important; }
 
 [data-testid="stCustomComponentV1"] {
   width: 100% !important;
@@ -330,8 +338,8 @@ st.markdown("""
       background:var(--line-2);margin-left:14px;"></span>
   </div>
   <div style="font-family:var(--serif);font-weight:300;
-    font-size:clamp(64px,11vw,140px);line-height:.95;letter-spacing:-.02em;
-    margin:0;color:var(--ink-0);
+    font-size:clamp(66px,11vw,142px);line-height:.95;letter-spacing:-.02em;
+    margin:0;color:var(--ink-0);text-align:center;
     text-shadow:0 0 40px rgba(235,230,215,.18),0 0 80px rgba(139,159,244,.12);">
     Find your <em style="color:#e8c490;">vibe.</em>
   </div>
@@ -342,163 +350,31 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+_search = components.declare_component("vm_search", path="src/components/search")
+_submitted_query = _search(key="vm_search_widget")
 
-params = st.query_params
-query_input = params.get("q", "")
-match_clicked = bool(query_input)
-
-components.html(f"""
-<style>
-  .vm-search-wrap {{
-    max-width: 960px;
-    width: 100%;
-    margin: 8px auto 0;
-    padding: 0 40px;
-    box-sizing: border-box;
-  }}
-  .vm-search-form {{
-    display: flex;
-    align-items: center;
-    padding: 8px 8px 8px 22px;
-    border-radius: 999px;
-    background: rgba(24,28,42,0.55);
-    border: 1px solid rgba(245,243,238,0.08);
-    backdrop-filter: blur(14px);
-    box-shadow: inset 0 1px 0 rgba(245,243,238,0.06);
-    transition: border-color 300ms, box-shadow 300ms;
-  }}
-  .vm-search-form:focus-within {{
-    border-color: rgba(212,165,116,0.5);
-    box-shadow: inset 0 1px 0 rgba(245,243,238,0.08),
-                0 0 0 4px rgba(212,165,116,0.06),
-                0 30px 100px -30px rgba(212,165,116,0.4);
-  }}
-  .vm-search-form input {{
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: #f5f3ee;
-    font-family: 'Instrument Serif', serif;
-    font-size: 18px;
-    font-style: italic;
-    padding: 14px 4px;
-    min-width: 0;
-  }}
-  .vm-search-form input::placeholder {{
-    color: #555250;
-  }}
-  body {{
-    margin: 0;
-    padding: 8px 0;
-    background: transparent;
-    overflow: visible;
-  }}
-  .vm-search-form button {{
-    appearance: none;
-    border: none;
-    padding: 0 22px;
-    height: 46px;
-    border-radius: 999px;
-    background: linear-gradient(180deg, #d4a574, #b8895d);
-    color: #1a1308;
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    cursor: pointer;
-    white-space: nowrap;
-    box-shadow: 0 0 0 1px rgba(220,180,130,0.4),
-                0 0 18px rgba(212,165,116,0.5);
-    transition: box-shadow 300ms, background 300ms;
-  }}
-  .vm-search-form button:hover {{
-    background: linear-gradient(180deg, #e0b882, #c99a5e);
-    box-shadow: 0 0 0 1px rgba(220,180,130,0.6),
-                0 0 28px rgba(212,165,116,0.75);
-  }}
-</style>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@500&display=swap" rel="stylesheet">
-<div class="vm-search-wrap">
-  <form class="vm-search-form" onsubmit="submitQuery(event)">
-    <input id="vm-input" type="text" placeholder="a lonely journey through a neon-lit dystopian city" value="{query_input}" autocomplete="off" spellcheck="false" />
-    <button type="submit">Match ↗</button>
-  </form>
-</div>
-<script>
-  function submitQuery(e) {{
-    e.preventDefault();
-    var val = document.getElementById('vm-input').value.trim();
-    if (!val) return;
-    window.parent.location.href = window.parent.location.pathname + '?q=' + encodeURIComponent(val);
-  }}
-</script>
-""", height=108, scrolling=False)
-
-components.html(f"""
-<style>
-  html, body {{
-    margin: 0;
-    padding: 8px 0;
-    background: transparent;
-    overflow: visible;
-  }}
-  .chips {{
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    padding: 12px 0;
-  }}
-  .chip {{
-    appearance: none;
-    background: rgba(24,28,42,0.4);
-    border: 1px solid rgba(245,243,238,0.08);
-    color: #c7c4bc;
-    padding: 9px 18px;
-    border-radius: 999px;
-    font-family: 'Inter Tight', sans-serif;
-    font-size: 13px;
-    font-weight: 300;
-    cursor: pointer;
-    backdrop-filter: blur(10px);
-    transition: all 220ms ease;
-  }}
-  .chip:hover {{
-    border-color: rgba(212,165,116,0.4);
-    color: #f5f3ee;
-    background: rgba(30,28,20,0.45);
-    box-shadow: 0 0 0 1px rgba(212,165,116,0.18), 0 0 30px rgba(212,165,116,0.2);
-  }}
-</style>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300&display=swap" rel="stylesheet">
-<div class="chips">
-  <button class="chip" onclick="setQuery('cozy autumn afternoon')">cozy autumn afternoon</button>
-  <button class="chip" onclick="setQuery('90s sci-fi paranoia')">90s sci-fi paranoia</button>
-  <button class="chip" onclick="setQuery('sunlit Mediterranean nostalgia')">sunlit Mediterranean nostalgia</button>
-  <button class="chip" onclick="setQuery('rainy Tokyo noir')">rainy Tokyo noir</button>
-</div>
-<script>
-  function setQuery(q) {{
-    window.parent.location.href = window.parent.location.pathname + '?q=' + encodeURIComponent(q);
-  }}
-</script>
-""", height=90, scrolling=False)
+_last = st.session_state.get("_last_query_seen", None)
+if _submitted_query and _submitted_query != _last:
+    query_input = _submitted_query
+    match_clicked = True
+    st.session_state._last_query_seen = _submitted_query
+else:
+    query_input = _submitted_query or ""
+    match_clicked = False
 
 if match_clicked and query_input.strip():
     st.session_state.last_query = query_input.strip()
-    with st.spinner(""):
-        try:
-            encoder, classifier, index, metadata, tokenizer, vocab, device = load_models(cfg)
-            st.session_state.results = run_search(
-                query_input.strip(), encoder, classifier,
-                index, metadata, tokenizer, vocab, device,
-                top_k=cfg.get("top_k", 10),
-            )
-        except Exception as e:
-            st.error(f"Search failed: {e}")
-            st.session_state.results = []
+    try:
+        encoder, classifier, index, metadata, tokenizer, vocab, device = load_models(cfg)
+        st.session_state.results = run_search(
+            query_input.strip(), encoder, classifier,
+            index, metadata, tokenizer, vocab, device,
+            top_k=cfg.get("top_k", 10),
+        )
+    except Exception as e:
+        st.error(f"Search failed: {e}")
+        st.session_state.results = []
+
 
 # Results
 if st.session_state.results or st.session_state.loading:
@@ -507,7 +383,7 @@ if st.session_state.results or st.session_state.loading:
     count_str = f'<span>{n} results</span>' if not st.session_state.loading else ""
 
     st.markdown(f"""
-<div style="max-width:1240px;margin:64px auto 18px;padding:0 40px;
+<div style="max-width:1240px;margin:-220px auto 18px;padding:0 40px;
   display:flex;align-items:center;justify-content:space-between;
   color:var(--ink-2);font-family:var(--mono);font-size:11px;
   letter-spacing:.18em;text-transform:uppercase;position:relative;z-index:2;">
@@ -530,7 +406,7 @@ if st.session_state.results or st.session_state.loading:
     )
 
     st.markdown(f"""
-<div style="max-width:1240px;margin:60px auto 80px;padding:0 40px;
+<div style="max-width:1240px;margin:-180px auto 80px;padding:0 40px;
   display:grid;grid-template-columns:repeat(4,1fr);gap:28px 24px;
   position:relative;z-index:2;">
   {grid_inner}
