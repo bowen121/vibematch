@@ -526,8 +526,7 @@ if st.session_state.results or st.session_state.loading:
 </div>
 """, unsafe_allow_html=True)
 
-# Footer
-st.markdown("""
+    st.markdown("""
 <footer style="position:relative;z-index:2;padding:60px 40px 4px;text-align:center;
   color:var(--ink-3);font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;">
   VibeMatch <span style="margin:0 10px;">·</span>
