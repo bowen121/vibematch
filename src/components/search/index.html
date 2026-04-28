@@ -130,7 +130,7 @@ html, body {
 
   function submitQuery(val) {
     if (!val) return;
-    try { localStorage.setItem('vm_last_query', val); } catch(e) {}
+    document.getElementById('vm-input').value = '';
     send({ type: 'streamlit:setComponentValue', value: val, dataType: 'json' });
   }
 
@@ -152,10 +152,6 @@ html, body {
   window.addEventListener('message', function(e) {
     if (e.data.isStreamlitMessage && e.data.type === 'streamlit:render') {
       setHeight();
-      try {
-        var q = localStorage.getItem('vm_last_query');
-        if (q) document.getElementById('vm-input').value = q;
-      } catch(e) {}
     }
   });
 
