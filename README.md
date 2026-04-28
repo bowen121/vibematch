@@ -46,7 +46,7 @@ A 4-layer MLP trained on frozen image embeddings from the trained encoder. Takes
 
 ## Features
 
-- **Text search** — describe any mood, aesthetic, director, era, or feeling
+- **Text search** — describe any mood, aesthetic, era, or feeling
 - **Image search** — upload a still, poster, or photo and find visually similar media
 - **Cross-modal retrieval** — text queries match books and movies in the same embedding space
 - **Live genre tagging** — genres predicted fresh per result via the MLP classifier
