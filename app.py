@@ -10,6 +10,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import base64
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -227,6 +228,40 @@ def _encode_image(img_path: Path) -> str:
     return f"data:image/{mime};base64,{b64}"
 
 
+@st.cache_data
+def _load_movie_poster_map() -> dict[str, str]:
+    csv_path = Path("data/raw/movies/MovieGenre.csv")
+    if not csv_path.exists():
+        return {}
+    import csv
+    mapping = {}
+    with open(csv_path, encoding="utf-8", errors="ignore") as f:
+        for row in csv.DictReader(f):
+            imdb_id = row.get("imdbId", "").strip()
+            url = row.get("Poster", "").strip()
+            if imdb_id and url:
+                mapping[imdb_id] = url
+    return mapping
+
+
+def _upsize_amazon_url(url: str) -> str:
+    return re.sub(r'_UX\d+_CR[\d,]+_', '_UX500_CR0,0,500,741_', url)
+
+
+def get_poster_url(meta: dict) -> str:
+    source = meta.get("source", "")
+    item_id = meta.get("id", "")
+    if source == "movie":
+        imdb_id = item_id.replace("movie_", "")
+        movie_map = _load_movie_poster_map()
+        url = movie_map.get(imdb_id, "")
+        return _upsize_amazon_url(url) if url else ""
+    elif source == "book":
+        isbn = item_id.replace("book_", "")
+        return f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg"
+    return ""
+
+
 def build_card_html(result: SearchResult, data_root: str = ".") -> str:
     meta = result.metadata
     title = meta.get("title", "Untitled")
@@ -241,12 +276,19 @@ def build_card_html(result: SearchResult, data_root: str = ".") -> str:
     genres = genres[:3]
 
     halo = _hex_to_rgba(dominant, 0.6)
-    data_uri = _encode_image(Path(data_root) / meta.get("image_path", ""))
-    img_tag = (
-        f'<img src="{data_uri}" style="position:absolute;inset:0;width:100%;'
-        f'height:100%;object-fit:cover;" alt="{title}" />'
-        if data_uri else ""
-    )
+    poster_url = get_poster_url(meta)
+    if poster_url:
+        img_tag = (
+            f'<img src="{poster_url}" style="position:absolute;inset:0;width:100%;'
+            f'height:100%;object-fit:cover;" alt="{title}" />'
+        )
+    else:
+        data_uri = _encode_image(Path(data_root) / meta.get("image_path", ""))
+        img_tag = (
+            f'<img src="{data_uri}" style="position:absolute;inset:0;width:100%;'
+            f'height:100%;object-fit:cover;" alt="{title}" />'
+            if data_uri else ""
+        )
     tags = "".join(
         f'<span style="font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;'
         f'text-transform:uppercase;padding:4px 8px;border-radius:999px;'
@@ -328,7 +370,7 @@ components.html('<script>window.top.document.querySelectorAll(\'[href*="streamli
 
 st.markdown("""
 <div style="position:relative;z-index:2;display:flex;align-items:center;
-  justify-content:space-between;padding:18px 60px 0;color:var(--ink-2);
+  justify-content:space-between;padding:15px 60px 0;color:var(--ink-2);
   font-size:12px;letter-spacing:.14em;text-transform:uppercase;">
   <span style="display:inline-flex;align-items:center;gap:10px;color:var(--ink-1);">
     <span style="width:6px;height:6px;border-radius:50%;background:#d4a574;
