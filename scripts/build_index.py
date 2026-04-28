@@ -108,7 +108,7 @@ def build(
             images, indices = batch
             img_emb = encoder.encode_image(images.to(device))
             all_embeddings.append(img_emb.cpu().numpy())
-              for idx in indices:
+            for idx in indices:
                 row = df.loc[idx]
                 with Image.open(Path(data_root) / row["image_path"]) as raw_img:
                     dominant_color = extract_dominant_color(raw_img)
