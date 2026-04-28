@@ -258,7 +258,7 @@ def get_poster_url(meta: dict) -> str:
         return _upsize_amazon_url(url) if url else ""
     elif source == "book":
         isbn = item_id.replace("book_", "")
-        return f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg"
+        return f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg?default=false"
     return ""
 
 
@@ -277,18 +277,17 @@ def build_card_html(result: SearchResult, data_root: str = ".") -> str:
 
     halo = _hex_to_rgba(dominant, 0.6)
     poster_url = get_poster_url(meta)
-    if poster_url:
-        img_tag = (
-            f'<img src="{poster_url}" style="position:absolute;inset:0;width:100%;'
-            f'height:100%;object-fit:cover;" alt="{title}" />'
-        )
+    data_uri = _encode_image(Path(data_root) / meta.get("image_path", ""))
+    img_style = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
+    if poster_url and data_uri:
+        img_tag = (f'<img src="{poster_url}" style="{img_style}" alt="{title}" '
+                   f'onerror="this.onerror=null;this.src=\'{data_uri}\'" />')
+    elif poster_url:
+        img_tag = f'<img src="{poster_url}" style="{img_style}" alt="{title}" />'
+    elif data_uri:
+        img_tag = f'<img src="{data_uri}" style="{img_style}" alt="{title}" />'
     else:
-        data_uri = _encode_image(Path(data_root) / meta.get("image_path", ""))
-        img_tag = (
-            f'<img src="{data_uri}" style="position:absolute;inset:0;width:100%;'
-            f'height:100%;object-fit:cover;" alt="{title}" />'
-            if data_uri else ""
-        )
+        img_tag = ""
     tags = "".join(
         f'<span style="font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;'
         f'text-transform:uppercase;padding:4px 8px;border-radius:999px;'
