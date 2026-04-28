@@ -355,11 +355,11 @@ def build_card_html(result: SearchResult, data_root: str = ".") -> str:
       font-family:var(--mono);font-size:10px;letter-spacing:.14em;
       text-transform:uppercase;color:rgba(245,243,238,.9);
       background:rgba(10,12,22,.22);
-      backdrop-filter:blur(10px) saturate(160%);
-      -webkit-backdrop-filter:blur(10px) saturate(160%);">{source_label}</div>
+      backdrop-filter:blur(10px) saturate(150%);
+      -webkit-backdrop-filter:blur(10px) saturate(150%);">{source_label}</div>
     <div class="vm-score" style="position:absolute;top:10px;right:10px;padding:5px 9px;
-      border-radius:999px;background:rgba(10,12,22,.2);
-      backdrop-filter:blur(10px) saturate(160%);-webkit-backdrop-filter:blur(10px) saturate(160%);
+      border-radius:999px;background:rgba(10,12,22,.35);
+      backdrop-filter:blur(10px) saturate(150%);-webkit-backdrop-filter:blur(10px) saturate(150%);
       border:1px solid rgba(245,243,238,.25);font-family:var(--mono);font-size:11px;
       letter-spacing:.08em;color:var(--ink-0);opacity:0;transform:translateY(-4px);
       transition:opacity 320ms,transform 320ms;">
