@@ -127,6 +127,11 @@ def build(
     index, metadata = build_index(embeddings, all_meta)
     save_index(index, metadata, index_path)
     print(f"[build_index] saved → {index_path}")
+    from src.loaders.split import build_genre_vocab
+    from src.loaders.dataset import parse_genres
+    vocab = build_genre_vocab([parse_genres(g) for g in df["genres"]])
+    Path(index_path).with_suffix(".bin.vocab.json").write_text(json.dumps(vocab))
+    print(f"[build_index] vocab ({len(vocab)} genres) → {index_path}.vocab.json")
  
  
 if __name__ == "__main__":

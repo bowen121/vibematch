@@ -16,13 +16,11 @@ import torch
 import yaml
 from transformers import DistilBertTokenizerFast
 
-'''
-from src.model.classifier import GenreClassifier
+from src.model.classifier import GenreClassifier, predict_genres
 from src.model.encoder import VibeMatchEncoder
 from src.retrieval.engine import load_index
 from src.retrieval.search import SearchResult
 from src.retrieval.search import query as faiss_query
-'''
 
 
 # ── Page config ──────────────────────────────────────────────────────────────
@@ -44,7 +42,7 @@ def load_config() -> dict:
 
 
 # ── Models ───────────────────────────────────────────────────────────────────
-'''
+
 @st.cache_resource
 def load_models(cfg: dict):
     with open("configs/train_config.yaml") as f:
@@ -57,7 +55,7 @@ def load_models(cfg: dict):
     encoder.load_state_dict(torch.load(cfg["clip_weights_path"], map_location=device))
     encoder.to(device).eval()
 
-    classifier = GenreClassifier()
+    classifier = GenreClassifier(num_genres=len(vocab))
     classifier.load_state_dict(torch.load(cfg["classifier_weights_path"], map_location=device))
     classifier.to(device).eval()
 
@@ -102,15 +100,11 @@ def run_search(
             for r in results:
                 row_id = r.metadata.get("id", "")
                 if row_id in id_to_row:
-                    emb = torch.from_numpy(all_embs[id_to_row[row_id]]).unsqueeze(0).to(device)
-                    with torch.no_grad():
-                        probs = torch.sigmoid(classifier(emb)).squeeze()
-                    top_idx = probs.topk(3).indices.cpu().tolist()
-                    r.metadata["live_genres"] = [vocab[i] for i in top_idx]
+                  emb = torch.from_numpy(all_embs[id_to_row[row_id]]).to(device)
+                  r.metadata["live_genres"] = predict_genres(emb, classifier, vocab)
 
     return results
 
-'''
 # ── Global CSS ────────────────────────────────────────────────────────────────
 
 GLOBAL_CSS = """
@@ -492,7 +486,6 @@ components.html(f"""
 </script>
 """, height=90, scrolling=False)
 
-'''
 if match_clicked and query_input.strip():
     st.session_state.last_query = query_input.strip()
     with st.spinner(""):
@@ -506,7 +499,7 @@ if match_clicked and query_input.strip():
         except Exception as e:
             st.error(f"Search failed: {e}")
             st.session_state.results = []
-'''
+
 # Results
 if st.session_state.results or st.session_state.loading:
     n = len(st.session_state.results)
