@@ -191,7 +191,7 @@ STARS_INJECTOR = """
   doc.body.appendChild(ln);
 
   var s=doc.createElement('script');
-  s.textContent='(function(){var cv=document.getElementById("vm-stars"),ln=document.getElementById("vm-lantern");if(!cv)return;var cx=cv.getContext("2d",{alpha:true}),W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2),st=[],mx={x:-9999,y:-9999,has:false},tg={x:-9999,y:-9999};function hue(){var r=Math.random();if(r<.06)return{h:60,c:.07};if(r<.12)return{h:265,c:.08};if(r<.16)return{h:200,c:.05};return{h:80,c:.012};}function build(){var N=Math.max(80,Math.min(450,Math.round(W*H/4500)));st=[];for(var i=0;i<N;i++){var z=.25+Math.pow(Math.random(),2),hc=hue();st.push({x:Math.random()*W,y:Math.random()*H,z:z,r:(.4+Math.random()*1.6)*z,ba:.18+Math.random()*.55,ts:.0006+Math.random()*.0018,tp:Math.random()*Math.PI*2,vx:(Math.random()-.5)*.018*z,vy:(Math.random()-.5)*.018*z,h:hc.h,c:hc.c});}}function resize(){W=cv.clientWidth=window.innerWidth;H=cv.clientHeight=window.innerHeight;cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cx.setTransform(DPR,0,0,DPR,0,0);build();}window.addEventListener("resize",resize);window.addEventListener("mousemove",function(e){tg.x=e.clientX;tg.y=e.clientY;mx.has=true;});window.addEventListener("mouseleave",function(){mx.has=false;tg.x=-9999;tg.y=-9999;});var t=0;function frame(){t++;if(mx.x===-9999){mx.x=tg.x;mx.y=tg.y;}mx.x+=(tg.x-mx.x)*.12;mx.y+=(tg.y-mx.y)*.12;if(ln&&mx.has){ln.style.transform="translate3d("+(mx.x-12)+"px,"+(mx.y-12)+"px,0)";}else if(ln){ln.style.transform="translate3d(-200px,-200px,0)";}cx.clearRect(0,0,W,H);if(mx.has){var g=cx.createRadialGradient(mx.x,mx.y,0,mx.x,mx.y,220);g.addColorStop(0,"rgba(245,240,220,.1)");g.addColorStop(.4,"rgba(235,225,200,.04)");g.addColorStop(1,"rgba(0,0,0,0)");cx.fillStyle=g;cx.fillRect(mx.x-240,mx.y-240,480,480);}var R2=78400;for(var i=0;i<st.length;i++){var s=st[i];s.x+=s.vx;s.y+=s.vy;if(s.x<-10)s.x=W+10;if(s.x>W+10)s.x=-10;if(s.y<-10)s.y=H+10;if(s.y>H+10)s.y=-10;var px=s.x,py=s.y;if(mx.has){px=s.x-(mx.x-W/2)*.012*s.z;py=s.y-(mx.y-H/2)*.012*s.z;}var prox=0;if(mx.has){var dx=px-mx.x,dy=py-mx.y,d2=dx*dx+dy*dy;if(d2<R2)prox=1-d2/R2;}var dim=mx.has?(.55+.45*prox):1,tw=.85+.15*Math.sin(t*s.ts*16+s.tp),alpha=Math.max(0,Math.min(1,s.ba*dim*tw+prox*.35)),r=s.r*(1+prox*.6),h=cx.createRadialGradient(px,py,0,px,py,r*6);h.addColorStop(0,"rgba(235,228,215,"+(alpha*.9)+")");h.addColorStop(.5,"rgba(220,215,200,"+(alpha*.18)+")");h.addColorStop(1,"rgba(0,0,0,0)");cx.fillStyle=h;cx.beginPath();cx.arc(px,py,r*6,0,Math.PI*2);cx.fill();cx.fillStyle="rgba(252,250,245,"+alpha+")";cx.beginPath();cx.arc(px,py,r,0,Math.PI*2);cx.fill();}requestAnimationFrame(frame);}resize();requestAnimationFrame(frame);})();';
+  s.textContent='(function(){var cv=document.getElementById("vm-stars"),ln=document.getElementById("vm-lantern");if(!cv)return;var cx=cv.getContext("2d",{alpha:true}),W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2),st=[],mx={x:-9999,y:-9999,has:false},tg={x:-9999,y:-9999};function hue(){var r=Math.random();if(r<.06)return{h:60,c:.07};if(r<.12)return{h:265,c:.08};if(r<.16)return{h:200,c:.05};return{h:80,c:.012};}function build(){var N=Math.max(80,Math.min(450,Math.round(W*H/4500)));st=[];for(var i=0;i<N;i++){var z=.25+Math.pow(Math.random(),2),hc=hue();st.push({x:Math.random()*W,y:Math.random()*H,z:z,r:(.4+Math.random()*1.6)*z,ba:.18+Math.random()*.55,ts:.0006+Math.random()*.0018,tp:Math.random()*Math.PI*2,vx:(Math.random()-.5)*.018*z,vy:(Math.random()-.5)*.018*z,h:hc.h,c:hc.c});}}function resize(){W=cv.clientWidth=window.innerWidth;H=cv.clientHeight=window.innerHeight;cv.width=Math.floor(W*DPR);cv.height=Math.floor(H*DPR);cx.setTransform(DPR,0,0,DPR,0,0);build();}window.addEventListener("resize",resize);window.addEventListener("mousemove",function(e){tg.x=e.clientX;tg.y=e.clientY;mx.has=true;},true);window.addEventListener("mouseleave",function(){mx.has=false;tg.x=-9999;tg.y=-9999;},true);var t=0;function frame(){t++;if(mx.x===-9999){mx.x=tg.x;mx.y=tg.y;}mx.x+=(tg.x-mx.x)*.12;mx.y+=(tg.y-mx.y)*.12;if(ln&&mx.has){ln.style.transform="translate3d("+(mx.x-12)+"px,"+(mx.y-12)+"px,0)";}else if(ln){ln.style.transform="translate3d(-200px,-200px,0)";}cx.clearRect(0,0,W,H);if(mx.has){var g=cx.createRadialGradient(mx.x,mx.y,0,mx.x,mx.y,220);g.addColorStop(0,"rgba(245,240,220,.1)");g.addColorStop(.4,"rgba(235,225,200,.04)");g.addColorStop(1,"rgba(0,0,0,0)");cx.fillStyle=g;cx.fillRect(mx.x-240,mx.y-240,480,480);}var R2=78400;for(var i=0;i<st.length;i++){var s=st[i];s.x+=s.vx;s.y+=s.vy;if(s.x<-10)s.x=W+10;if(s.x>W+10)s.x=-10;if(s.y<-10)s.y=H+10;if(s.y>H+10)s.y=-10;var px=s.x,py=s.y;if(mx.has){px=s.x-(mx.x-W/2)*.012*s.z;py=s.y-(mx.y-H/2)*.012*s.z;}var prox=0;if(mx.has){var dx=px-mx.x,dy=py-mx.y,d2=dx*dx+dy*dy;if(d2<R2)prox=1-d2/R2;}var dim=mx.has?(.55+.45*prox):1,tw=.85+.15*Math.sin(t*s.ts*16+s.tp),alpha=Math.max(0,Math.min(1,s.ba*dim*tw+prox*.35)),r=s.r*(1+prox*.6),h=cx.createRadialGradient(px,py,0,px,py,r*6);h.addColorStop(0,"rgba(235,228,215,"+(alpha*.9)+")");h.addColorStop(.5,"rgba(220,215,200,"+(alpha*.18)+")");h.addColorStop(1,"rgba(0,0,0,0)");cx.fillStyle=h;cx.beginPath();cx.arc(px,py,r*6,0,Math.PI*2);cx.fill();cx.fillStyle="rgba(252,250,245,"+alpha+")";cx.beginPath();cx.arc(px,py,r,0,Math.PI*2);cx.fill();}requestAnimationFrame(frame);}resize();requestAnimationFrame(frame);})();';
   doc.body.appendChild(s);
 })();
 </script>
@@ -237,7 +237,7 @@ def build_card_html(result: SearchResult, data_root: str = ".") -> str:
         if data_uri else ""
     )
     tags = "".join(
-        f'<span style="font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;'
+        f'<span style="font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;'
         f'text-transform:uppercase;padding:4px 8px;border-radius:999px;'
         f'border:1px solid var(--line-2);color:var(--ink-2);'
         f'background:rgba(24,28,42,.4);">{g}</span>'
@@ -257,11 +257,15 @@ def build_card_html(result: SearchResult, data_root: str = ".") -> str:
     <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,rgba(8,10,18,.7));"></div>
     <div style="position:absolute;top:10px;left:10px;padding:3px 8px;
       border:1px solid rgba(245,243,238,.35);border-radius:999px;
-      font-family:var(--mono);font-size:9px;letter-spacing:.14em;
-      text-transform:uppercase;color:rgba(245,243,238,.7);">{source_label}</div>
+      font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+      text-transform:uppercase;color:rgba(245,243,238,.9);
+      background:rgba(10,12,22,.33);
+      backdrop-filter:blur(10px) saturate(160%);
+      -webkit-backdrop-filter:blur(10px) saturate(160%);">{source_label}</div>
     <div class="vm-score" style="position:absolute;top:10px;right:10px;padding:5px 9px;
-      border-radius:999px;background:rgba(245,243,238,.16);backdrop-filter:blur(8px);
-      border:1px solid rgba(245,243,238,.25);font-family:var(--mono);font-size:10px;
+      border-radius:999px;background:rgba(10,12,22,.33);
+      backdrop-filter:blur(10px) saturate(160%);-webkit-backdrop-filter:blur(10px) saturate(160%);
+      border:1px solid rgba(245,243,238,.25);font-family:var(--mono);font-size:11px;
       letter-spacing:.08em;color:var(--ink-0);opacity:0;transform:translateY(-4px);
       transition:opacity 320ms,transform 320ms;">
       match <span style="color:var(--accent);font-weight:500;">{score_pct}</span>
@@ -383,7 +387,7 @@ if st.session_state.results or st.session_state.loading:
     count_str = f'<span>{n} results</span>' if not st.session_state.loading else ""
 
     st.markdown(f"""
-<div style="max-width:1240px;margin:-220px auto 18px;padding:0 40px;
+<div style="max-width:1240px;margin:-230px auto 18px;padding:0 40px;
   display:flex;align-items:center;justify-content:space-between;
   color:var(--ink-2);font-family:var(--mono);font-size:11px;
   letter-spacing:.18em;text-transform:uppercase;position:relative;z-index:2;">

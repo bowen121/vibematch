@@ -1,5 +1,5 @@
 # ── App settings ──
-top_k: 10
+top_k: 12
 index_path: models/faiss_index.bin
 clip_weights_path: models/clip_projections.pt
 classifier_weights_path: models/genre_classifier.pt
