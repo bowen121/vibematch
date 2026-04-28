@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 
 class GenreClassifier(nn.Module):
-    def __init__(self, input_dim=256, num_genres=25):
+    def __init__(self, input_dim=256, num_genres=54):
         super(GenreClassifier, self).__init__()
         # Maps the mathematical formulas to PyTorch layers
         self.mlp = nn.Sequential(
