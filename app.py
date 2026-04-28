@@ -244,8 +244,24 @@ def _load_movie_poster_map() -> dict[str, str]:
     return mapping
 
 
+@st.cache_data
+def _load_book_poster_map() -> dict[str, str]:
+    csv_path = Path("data/raw/books/book32-listing.csv")
+    if not csv_path.exists():
+        return {}
+    import csv
+    mapping = {}
+    with open(csv_path, encoding="utf-8", errors="ignore") as f:
+        for row in csv.DictReader(f, delimiter=";"):
+            asin = row.get("Amazon Index (ASIN)", "").strip()
+            url = row.get("Image URL", "").strip()
+            if asin and url:
+                mapping[asin] = url
+    return mapping
+
+
 def _upsize_amazon_url(url: str) -> str:
-    return re.sub(r'_UX\d+_CR[\d,]+_', '_UX500_CR0,0,500,741_', url)
+    return re.sub(r'\._[A-Z0-9,_]+_\.', '._UX500_CR0,0,500,741_.', url)
 
 
 def get_poster_url(meta: dict) -> str:
@@ -258,7 +274,9 @@ def get_poster_url(meta: dict) -> str:
         return _upsize_amazon_url(url) if url else ""
     elif source == "book":
         isbn = item_id.replace("book_", "")
-        return f"https://covers.openlibrary.org/b/isbn/{isbn}-L.jpg?default=false"
+        book_map = _load_book_poster_map()
+        url = book_map.get(isbn, "")
+        return _upsize_amazon_url(url) if url else ""
     return ""
 
 
