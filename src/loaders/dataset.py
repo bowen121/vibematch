@@ -110,7 +110,7 @@ class MediaDataset(Dataset):
         genre_vocab: Sequence[str],
         tokenizer: Any,
         train: bool = False,
-        max_text_len: int = 32,
+        max_text_len: int = 77,
         seed: int = 0,
     ) -> None:
         required_cols = {"id", "image_path", "genres", "source"}
@@ -137,7 +137,13 @@ class MediaDataset(Dataset):
         with Image.open(img_path) as img:
             image = self.transform(img.convert("RGB"))
 
-        prompt = render_prompt(genres, str(row["source"]), self._rng)
+        caption_cols = [c for c in ("caption_1", "caption_2", "caption_3") if c in self.df.columns]
+        available = [str(row[c]) for c in caption_cols if pd.notna(row[c]) and str(row[c]).strip()]
+        if available:
+            chosen = available[int(self._rng.integers(0, len(available)))] if self._rng else available[0]
+            prompt = chosen
+        else:
+            prompt = render_prompt(genres, str(row["source"]), self._rng)
         encoded = self.tokenizer(
             prompt,
             padding="max_length",
