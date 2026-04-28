@@ -324,6 +324,7 @@ cfg = load_config()
 
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 components.html(STARS_INJECTOR, height=0, scrolling=False)
+components.html('<script>window.top.document.querySelectorAll(\'[href*="streamlit.io"]\').forEach(e=>e.setAttribute("style","display:none;"));</script>', height=0, scrolling=False)
 
 st.markdown("""
 <div style="position:relative;z-index:2;display:flex;align-items:center;
