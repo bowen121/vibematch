@@ -140,7 +140,9 @@ html, body {
 
   document.querySelectorAll('.chip').forEach(function(chip) {
     chip.addEventListener('click', function() {
-      submitQuery(this.dataset.query);
+      var input = document.getElementById('vm-input');
+      input.value = this.dataset.query;
+      input.focus();
     });
   });
 
