@@ -130,6 +130,7 @@ html, body {
 
   function submitQuery(val) {
     if (!val) return;
+    try { localStorage.setItem('vm_last_query', val); } catch(e) {}
     send({ type: 'streamlit:setComponentValue', value: val, dataType: 'json' });
   }
 
@@ -140,9 +141,8 @@ html, body {
 
   document.querySelectorAll('.chip').forEach(function(chip) {
     chip.addEventListener('click', function() {
-      var input = document.getElementById('vm-input');
-      input.value = this.dataset.query;
-      input.focus();
+      document.getElementById('vm-input').value = this.dataset.query;
+      submitQuery(this.dataset.query);
     });
   });
 
@@ -152,6 +152,10 @@ html, body {
   window.addEventListener('message', function(e) {
     if (e.data.isStreamlitMessage && e.data.type === 'streamlit:render') {
       setHeight();
+      try {
+        var q = localStorage.getItem('vm_last_query');
+        if (q) document.getElementById('vm-input').value = q;
+      } catch(e) {}
     }
   });
 
