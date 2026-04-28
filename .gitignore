@@ -32,7 +32,6 @@ Thumbs.db
 # Data (too large for git)
 data/processed/
 data/raw/books/title30cat/
-data/raw/movies/SampleMoviePosters/
 
 # Model weights and index files tracked via Git LFS
 
