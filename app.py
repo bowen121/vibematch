@@ -150,7 +150,7 @@ GLOBAL_CSS = """
 }
 
 html, body { overscroll-behavior: none; }
-#MainMenu, footer, header { visibility: hidden; }
+#MainMenu, header { visibility: hidden; }
 [data-testid="stToolbar"] { display: none !important; }
 .viewerBadge_container__r5tak { display: none !important; }
 #stDecoration { display: none !important; }
@@ -363,7 +363,7 @@ def build_card_html(result: SearchResult, data_root: str = ".") -> str:
       border:1px solid rgba(245,243,238,.25);font-family:var(--mono);font-size:11px;
       letter-spacing:.08em;color:var(--ink-0);opacity:0;transform:translateY(-4px);
       transition:opacity 320ms,transform 320ms;">
-      match <span style="color:var(--accent);font-weight:500;">{score_pct}</span>
+      match <span style="color:var(--accent-glow);font-weight:600;">{score_pct}</span>
     </div>
   </div>
   <div style="margin-top:14px;position:relative;z-index:1;">
