@@ -528,10 +528,8 @@ if st.session_state.results or st.session_state.loading:
 
 # Footer
 st.markdown("""
-<footer style="position:fixed;bottom:0;left:0;right:0;z-index:10;padding:25px 40px;text-align:center;
-  color:var(--ink-3);font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
-  background:linear-gradient(to top,rgba(11,14,23,0.9) 60%,transparent);
-  pointer-events:none;">
+<footer style="position:relative;z-index:2;padding:80px 40px 0px;text-align:center;
+  color:var(--ink-3);font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;">
   VibeMatch <span style="margin:0 10px;">·</span>
   NYU CSCI-UA 473 Final Project <span style="margin:0 10px;">·</span> 2026
 </footer>
