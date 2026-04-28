@@ -14,7 +14,7 @@ html, body {
   max-width: 960px;
   width: 100%;
   margin: 0 auto;
-  padding: 35px 40px 0;
+  padding: 25px 40px 0;
 }
 .vm-search-form {
   display: flex;
@@ -111,7 +111,7 @@ html, body {
   <button class="chip" data-query="cozy autumn afternoon">cozy autumn afternoon</button>
   <button class="chip" data-query="90s sci-fi paranoia">90s sci-fi paranoia</button>
   <button class="chip" data-query="sunlit Mediterranean nostalgia">sunlit Mediterranean nostalgia</button>
-  <button class="chip" data-query="rainy Tokyo noir">rainy Tokyo noir</button>
+  <button class="chip" data-query="director Wong Kar-wai">director Wong Kar-wai</button>
 </div>
 <script>
   function send(msg) {
@@ -121,10 +121,7 @@ html, body {
   send({ type: 'streamlit:componentReady', apiVersion: 1 });
 
   function setHeight() {
-    var wrap = document.querySelector('.vm-search-wrap');
-    var chips = document.querySelector('.chips');
-    var h = (wrap ? wrap.getBoundingClientRect().height : 0) +
-            (chips ? chips.getBoundingClientRect().height : 0) + 20;
+    var h = document.documentElement.scrollHeight;
     send({ type: 'streamlit:setFrameHeight', height: Math.ceil(h) });
   }
 
@@ -145,6 +142,8 @@ html, body {
   });
 
   window.addEventListener('load', setHeight);
+  document.fonts.ready.then(setHeight);
+  new ResizeObserver(setHeight).observe(document.body);
 
   document.addEventListener('mousemove', function(e) {
     try {

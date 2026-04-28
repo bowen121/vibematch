@@ -156,6 +156,13 @@ iframe {
   width: 100% !important;
 }
 h1 a, h2 a, h3 a { display: none !important; }
+[data-testid="stSpinner"],
+[data-testid="stStatusWidget"] {
+  max-width: 1240px;
+  margin: 0 auto !important;
+  padding: 0 40px !important;
+  box-sizing: border-box;
+}
 /* Card interactions */
 .vm-card:hover .vm-halo  { opacity: 0.95 !important; transform: scale(1.05) !important; }
 .vm-card:hover .vm-cover { transform: translateY(-6px) !important; box-shadow: 0 30px 60px -20px rgba(5,6,12,0.8) !important; }
@@ -368,16 +375,23 @@ else:
 
 if match_clicked and query_input.strip():
     st.session_state.last_query = query_input.strip()
+    st.session_state.loading = True
+    st.session_state.results = []
+    st.rerun()
+
+if st.session_state.loading:
     try:
         encoder, classifier, index, metadata, tokenizer, vocab, device = load_models(cfg)
         st.session_state.results = run_search(
-            query_input.strip(), encoder, classifier,
+            st.session_state.last_query, encoder, classifier,
             index, metadata, tokenizer, vocab, device,
             top_k=cfg.get("top_k", 10),
         )
     except Exception as e:
         st.error(f"Search failed: {e}")
         st.session_state.results = []
+    st.session_state.loading = False
+    st.rerun()
 
 
 # Results
@@ -387,7 +401,7 @@ if st.session_state.results or st.session_state.loading:
     count_str = f'<span>{n} results</span>' if not st.session_state.loading else ""
 
     st.markdown(f"""
-<div style="max-width:1240px;margin:-230px auto 18px;padding:0 40px;
+<div style="max-width:1240px;margin: 25px auto 18px;padding:0 40px;
   display:flex;align-items:center;justify-content:space-between;
   color:var(--ink-2);font-family:var(--mono);font-size:11px;
   letter-spacing:.18em;text-transform:uppercase;position:relative;z-index:2;">
@@ -410,7 +424,7 @@ if st.session_state.results or st.session_state.loading:
     )
 
     st.markdown(f"""
-<div style="max-width:1240px;margin:-180px auto 80px;padding:0 40px;
+<div style="max-width:1240px;margin: 25px auto 80px;padding:0 40px;
   display:grid;grid-template-columns:repeat(4,1fr);gap:28px 24px;
   position:relative;z-index:2;">
   {grid_inner}
