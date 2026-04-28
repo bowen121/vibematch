@@ -121,7 +121,10 @@ html, body {
   send({ type: 'streamlit:componentReady', apiVersion: 1 });
 
   function setHeight() {
-    var h = document.documentElement.scrollHeight;
+    var wrap = document.querySelector('.vm-search-wrap');
+    var chips = document.querySelector('.chips');
+    var h = (wrap ? wrap.getBoundingClientRect().height : 0) +
+            (chips ? chips.getBoundingClientRect().height : 0) + 20;
     send({ type: 'streamlit:setFrameHeight', height: Math.ceil(h) });
   }
 
@@ -143,7 +146,12 @@ html, body {
 
   window.addEventListener('load', setHeight);
   document.fonts.ready.then(setHeight);
-  new ResizeObserver(setHeight).observe(document.body);
+
+  window.addEventListener('message', function(e) {
+    if (e.data.isStreamlitMessage && e.data.type === 'streamlit:render') {
+      setHeight();
+    }
+  });
 
   document.addEventListener('mousemove', function(e) {
     try {
