@@ -33,9 +33,7 @@ Thumbs.db
 data/raw/
 data/processed/
 
-# Model weights and index files
-models/*.pt
-models/*.bin
+# Model weights and index files tracked via Git LFS
 
 # Jupyter
 .ipynb_checkpoints/
