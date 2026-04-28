@@ -166,6 +166,7 @@ html, body {
   function submitQuery(val) {
     if (!val) return;
     document.getElementById('vm-input').value = '';
+    document.getElementById('vm-img-btn').classList.remove('has-image');
     send({ type: 'streamlit:setComponentValue', value: val, dataType: 'json' });
   }
 
