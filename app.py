@@ -456,7 +456,7 @@ _last = st.session_state.get("_last_query_seen", None)
 if _submitted_query and _submitted_query != _last:
     st.session_state._last_query_seen = _submitted_query
     if isinstance(_submitted_query, dict) and _submitted_query.get("type") == "image":
-        st.session_state.last_query = "your image"
+        st.session_state.last_query = _submitted_query.get("name", "uploaded image")
         st.session_state.image_data = _submitted_query["data"]
         st.session_state.query_type = "image"
     else:

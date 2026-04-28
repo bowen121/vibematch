@@ -189,7 +189,7 @@ html, body {
     reader.onload = function(ev) {
       document.getElementById('vm-input').value = '';
       btn.classList.add('has-image');
-      send({ type: 'streamlit:setComponentValue', value: { type: 'image', data: ev.target.result }, dataType: 'json' });
+      send({ type: 'streamlit:setComponentValue', value: { type: 'image', data: ev.target.result, name: file.name }, dataType: 'json' });
     };
     reader.readAsDataURL(file);
     e.target.value = '';
