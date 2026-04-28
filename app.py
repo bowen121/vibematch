@@ -149,6 +149,7 @@ GLOBAL_CSS = """
   --mono: 'JetBrains Mono',ui-monospace,monospace;
 }
 
+html, body { overscroll-behavior: none; }
 #MainMenu, footer, header { visibility: hidden; }
 [data-testid="stToolbar"] { display: none !important; }
 .viewerBadge_container__r5tak { display: none !important; }
