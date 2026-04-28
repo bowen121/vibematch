@@ -265,7 +265,7 @@ def _load_book_poster_map() -> dict[str, str]:
 
 
 def _upsize_amazon_url(url: str) -> str:
-    return re.sub(r'_UX\d+_CR[\d,]+_', '_UX500_CR0,0,500,741_', url)
+    return re.sub(r'_UX\d+_CR[\d,]+_', '_UX400_CR0,0,400,593_', url)
 
 
 def get_poster_url(meta: dict) -> str:
