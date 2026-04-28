@@ -19,7 +19,7 @@ html, body {
 .vm-search-form {
   display: flex;
   align-items: center;
-  padding: 8px 8px 8px 22px;
+  padding: 8px 8px 8px 8px;
   border-radius: 999px;
   background: rgba(24,28,42,0.55);
   border: 1px solid rgba(245,243,238,0.08);
@@ -33,7 +33,7 @@ html, body {
               0 0 0 4px rgba(212,165,116,0.06),
               0 30px 100px -30px rgba(212,165,116,0.4);
 }
-.vm-search-form input {
+.vm-search-form input[type="text"] {
   flex: 1;
   background: transparent;
   border: none;
@@ -45,8 +45,8 @@ html, body {
   padding: 14px 4px;
   min-width: 0;
 }
-.vm-search-form input::placeholder { color: #555250; }
-.vm-search-form button {
+.vm-search-form input[type="text"]::placeholder { color: #555250; }
+.vm-search-form button[type="submit"] {
   appearance: none;
   border: none;
   padding: 0 22px;
@@ -64,10 +64,37 @@ html, body {
   box-shadow: 0 0 0 1px rgba(220,180,130,0.4), 0 0 18px rgba(212,165,116,0.5);
   transition: box-shadow 300ms, background 300ms;
 }
-.vm-search-form button:hover {
+.vm-search-form button[type="submit"]:hover {
   background: linear-gradient(180deg, #e0b882, #c99a5e);
   box-shadow: 0 0 0 1px rgba(220,180,130,0.6), 0 0 28px rgba(212,165,116,0.75);
 }
+.vm-img-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  cursor: pointer;
+  color: #555250;
+  border: 1px solid rgba(245,243,238,0.1);
+  background: rgba(245,243,238,0.04);
+  transition: color 220ms, border-color 220ms, background 220ms;
+  margin-right: 6px;
+}
+.vm-img-btn:hover {
+  color: #d4a574;
+  border-color: rgba(212,165,116,0.35);
+  background: rgba(212,165,116,0.08);
+}
+.vm-img-btn.has-image {
+  color: #d4a574;
+  border-color: rgba(212,165,116,0.5);
+  background: rgba(212,165,116,0.12);
+  box-shadow: 0 0 12px rgba(212,165,116,0.2);
+}
+.vm-img-btn input[type="file"] { display: none; }
 .chips {
   display: flex;
   justify-content: center;
@@ -101,6 +128,14 @@ html, body {
 <body>
 <div class="vm-search-wrap">
   <form class="vm-search-form" id="vm-form">
+    <label class="vm-img-btn" id="vm-img-btn" title="Search by image">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+      </svg>
+      <input type="file" id="vm-file" accept="image/*">
+    </label>
     <input id="vm-input" type="text"
       placeholder="a lonely journey through a neon-lit dystopian city"
       autocomplete="off" spellcheck="false" />
@@ -144,6 +179,20 @@ html, body {
       document.getElementById('vm-input').value = this.dataset.query;
       submitQuery(this.dataset.query);
     });
+  });
+
+  document.getElementById('vm-file').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var btn = document.getElementById('vm-img-btn');
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      document.getElementById('vm-input').value = '';
+      btn.classList.add('has-image');
+      send({ type: 'streamlit:setComponentValue', value: { type: 'image', data: ev.target.result }, dataType: 'json' });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
   });
 
   window.addEventListener('load', setHeight);

@@ -9,6 +9,7 @@ import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import base64
+import io
 import json
 import re
 from pathlib import Path
@@ -18,6 +19,8 @@ import streamlit as st
 import streamlit.components.v1 as components
 import torch
 import yaml
+from PIL import Image
+from torchvision import transforms
 from transformers import DistilBertTokenizerFast
 
 from src.model.classifier import GenreClassifier, predict_genres
@@ -110,6 +113,23 @@ def run_search(
                   r.metadata["live_genres"] = predict_genres(emb, classifier, vocab)
 
     return results
+
+
+_IMG_TRANSFORM = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+
+def run_image_search(data_url: str, encoder, index, metadata, device, top_k) -> list[SearchResult]:
+    header, encoded = data_url.split(",", 1)
+    img = Image.open(io.BytesIO(base64.b64decode(encoded))).convert("RGB")
+    tensor = _IMG_TRANSFORM(img).unsqueeze(0).to(device)
+    with torch.no_grad():
+        query_vec = encoder.encode_image(tensor).cpu().numpy().squeeze()
+    return faiss_query(index, metadata, query_vec, top_k=top_k)
+
 
 # ── Global CSS ────────────────────────────────────────────────────────────────
 
@@ -376,7 +396,7 @@ def build_skeleton_html() -> str:
 
 # ── Session state ─────────────────────────────────────────────────────────────
 
-for key, default in [("results", []), ("last_query", ""), ("loading", False)]:
+for key, default in [("results", []), ("last_query", ""), ("loading", False), ("query_type", "text"), ("image_data", "")]:
     if key not in st.session_state:
         st.session_state[key] = default
 
@@ -434,15 +454,14 @@ _submitted_query = _search(key="vm_search_widget")
 
 _last = st.session_state.get("_last_query_seen", None)
 if _submitted_query and _submitted_query != _last:
-    query_input = _submitted_query
-    match_clicked = True
     st.session_state._last_query_seen = _submitted_query
-else:
-    query_input = _submitted_query or ""
-    match_clicked = False
-
-if match_clicked and query_input.strip():
-    st.session_state.last_query = query_input.strip()
+    if isinstance(_submitted_query, dict) and _submitted_query.get("type") == "image":
+        st.session_state.last_query = "your image"
+        st.session_state.image_data = _submitted_query["data"]
+        st.session_state.query_type = "image"
+    else:
+        st.session_state.last_query = str(_submitted_query).strip()
+        st.session_state.query_type = "text"
     st.session_state.loading = True
     st.session_state.results = []
     st.rerun()
@@ -450,11 +469,17 @@ if match_clicked and query_input.strip():
 if st.session_state.loading:
     try:
         encoder, classifier, index, metadata, tokenizer, vocab, device = load_models(cfg)
-        st.session_state.results = run_search(
-            st.session_state.last_query, encoder, classifier,
-            index, metadata, tokenizer, vocab, device,
-            top_k=cfg.get("top_k", 10),
-        )
+        if st.session_state.get("query_type") == "image":
+            st.session_state.results = run_image_search(
+                st.session_state.image_data, encoder, index, metadata, device,
+                top_k=cfg.get("top_k", 10),
+            )
+        else:
+            st.session_state.results = run_search(
+                st.session_state.last_query, encoder, classifier,
+                index, metadata, tokenizer, vocab, device,
+                top_k=cfg.get("top_k", 10),
+            )
     except Exception as e:
         st.error(f"Search failed: {e}")
         st.session_state.results = []
