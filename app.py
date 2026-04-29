@@ -20,6 +20,11 @@ import streamlit.components.v1 as components
 import torch
 import yaml
 from PIL import Image
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except ImportError:
+    pass
 from torchvision import transforms
 from transformers import DistilBertTokenizerFast
 
