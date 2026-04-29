@@ -191,8 +191,8 @@ def test_media_dataset_returns_correct_shapes(tmp_path: Path):
     assert len(ds) == 12
     sample = ds[0]
     assert sample["image"].shape == (3, 224, 224)
-    assert sample["input_ids"].shape == (32,)
-    assert sample["attention_mask"].shape == (32,)
+    assert sample["input_ids"].shape == (77,)
+    assert sample["attention_mask"].shape == (77,)
     assert sample["labels"].shape == (len(vocab),)
     assert sample["labels"].dtype == torch.float32
 

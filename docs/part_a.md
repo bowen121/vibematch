@@ -97,8 +97,8 @@ Each batch is a `dict` with these keys:
 | key              | shape                | dtype       | notes                              |
 |------------------|----------------------|-------------|------------------------------------|
 | `image`          | `(B, 3, 224, 224)`   | float32     | ImageNet-normalized                |
-| `input_ids`      | `(B, 32)`            | long        | DistilBERT-tokenized prompt        |
-| `attention_mask` | `(B, 32)`            | long        |                                    |
+| `input_ids`      | `(B, 77)`            | long        | DistilBERT-tokenized prompt        |
+| `attention_mask` | `(B, 77)`            | long        |                                    |
 | `labels`         | `(B, |vocab|)`       | float32     | multi-hot genre vector             |
 | `source`         | list[str], len B     | —           | `"movie"` / `"book"`               |
 | `item_id`        | list[str], len B     | —           | for retrieval-eval traceback       |
