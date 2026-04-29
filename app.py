@@ -63,8 +63,8 @@ def load_models(cfg: dict):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dim = train_cfg["clip"]["projection_dim"]
 
-    vocab_path = Path(cfg["index_path"]).with_suffix(".bin.vocab.json")
-    vocab: list[str] = json.loads(vocab_path.read_text()) if vocab_path.exists() else []
+    clf_vocab_path = Path("models/genre_vocab.json")
+    vocab: list[str] = json.loads(clf_vocab_path.read_text()) if clf_vocab_path.exists() else []
 
     encoder = VibeMatchEncoder(projection_dim=dim)
     encoder.load_state_dict(torch.load(cfg["clip_weights_path"], map_location=device))
