@@ -432,7 +432,7 @@ st.markdown("""
   <nav style="display:flex;gap:28px;">
     <a href="https://github.com/bowen121/vibematch?tab=readme-ov-file#readme" target="_blank" rel="noopener" style="color:var(--ink-2);text-decoration:none;">Discover</a>
     <a href="https://github.com/bowen121/vibematch?tab=readme-ov-file#readme" target="_blank" rel="noopener" style="color:var(--ink-2);text-decoration:none;">About</a>
-    <a href="https://github.com/bowen121/vibematch?tab=readme-ov-file#readme" target="_blank" rel="noopener" style="color:var(--ink-2);text-decoration:none;">Method</a>
+    <a href="https://github.com/bowen121/vibematch?tab=readme-ov-file#how-it-works" target="_blank" rel="noopener" style="color:var(--ink-2);text-decoration:none;">Method</a>
   </nav>
 </div>
 """, unsafe_allow_html=True)
