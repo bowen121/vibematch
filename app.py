@@ -28,7 +28,7 @@ except ImportError:
 from torchvision import transforms
 from transformers import DistilBertTokenizerFast
 
-from src.model.classifier import GenreClassifier, predict_genres
+from src.model.classifier import GenreClassifier, predict_genres, predict_genres_with_scores
 from src.model.encoder import VibeMatchEncoder
 from src.retrieval.engine import load_index
 from src.retrieval.search import SearchResult
@@ -93,18 +93,31 @@ def run_search(
     vocab: list[str],
     device: str,
     top_k: int,
-) -> list[SearchResult]:
-    """Encode query text, retrieve top-k results, annotate with live genre tags."""
+) -> tuple[list[SearchResult], list[tuple[str, int]]]:
+    """Encode query text, retrieve top-k results, annotate with live genre tags.
+
+    Also predicts genres directly from the text query embedding to demonstrate
+    cross-modal alignment (MLP was trained on image embeddings).
+
+    Returns:
+        (results, query_genre_scores) where query_genre_scores is a list of
+        (genre_name, pct) tuples, e.g. [("Thriller", 82), ("Crime", 67)].
+    """
     enc = tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=32)
     with torch.no_grad():
-        query_vec = encoder.encode_text(
+        query_tensor = encoder.encode_text(
             enc["input_ids"].to(device),
             enc["attention_mask"].to(device),
-        ).cpu().numpy().squeeze()
+        )
+    query_vec = query_tensor.cpu().numpy().squeeze()
+
+    query_genre_scores: list[tuple[str, int]] = []
+    if vocab and classifier is not None:
+        query_genre_scores = predict_genres_with_scores(query_tensor.squeeze(0), classifier, vocab)
 
     results = faiss_query(index, metadata, query_vec, top_k=top_k)
 
-    # Live genre tagging — requires pre-saved image embeddings from build_index.py
+    # Live genre tagging on retrieved results via pre-saved image embeddings
     if vocab:
         emb_path = Path("models/image_embeddings.npy")
         id_path = Path("models/image_embeddings_ids.json")
@@ -114,10 +127,10 @@ def run_search(
             for r in results:
                 row_id = r.metadata.get("id", "")
                 if row_id in id_to_row:
-                  emb = torch.from_numpy(all_embs[id_to_row[row_id]]).to(device)
-                  r.metadata["live_genres"] = predict_genres(emb, classifier, vocab)
+                    emb = torch.from_numpy(all_embs[id_to_row[row_id]]).to(device)
+                    r.metadata["live_genres"] = predict_genres(emb, classifier, vocab)
 
-    return results
+    return results, query_genre_scores
 
 
 _IMG_TRANSFORM = transforms.Compose([
@@ -127,13 +140,21 @@ _IMG_TRANSFORM = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
 
-def run_image_search(data_url: str, encoder, index, metadata, device, top_k) -> list[SearchResult]:
+def run_image_search(
+    data_url: str, encoder, classifier, index, metadata, vocab, device, top_k
+) -> tuple[list[SearchResult], list[tuple[str, int]]]:
     header, encoded = data_url.split(",", 1)
     img = Image.open(io.BytesIO(base64.b64decode(encoded))).convert("RGB")
     tensor = _IMG_TRANSFORM(img).unsqueeze(0).to(device)
     with torch.no_grad():
-        query_vec = encoder.encode_image(tensor).cpu().numpy().squeeze()
-    return faiss_query(index, metadata, query_vec, top_k=top_k)
+        query_tensor = encoder.encode_image(tensor)
+    query_vec = query_tensor.cpu().numpy().squeeze()
+
+    query_genre_scores: list[tuple[str, int]] = []
+    if vocab and classifier is not None:
+        query_genre_scores = predict_genres_with_scores(query_tensor.squeeze(0), classifier, vocab)
+
+    return faiss_query(index, metadata, query_vec, top_k=top_k), query_genre_scores
 
 
 # ── Global CSS ────────────────────────────────────────────────────────────────
@@ -407,7 +428,7 @@ def build_skeleton_html() -> str:
 
 # ── Session state ─────────────────────────────────────────────────────────────
 
-for key, default in [("results", []), ("last_query", ""), ("loading", False), ("query_type", "text"), ("image_data", "")]:
+for key, default in [("results", []), ("last_query", ""), ("loading", False), ("query_type", "text"), ("image_data", ""), ("query_genre_scores", [])]:
     if key not in st.session_state:
         st.session_state[key] = default
 
@@ -475,18 +496,19 @@ if _submitted_query and _submitted_query != _last:
         st.session_state.query_type = "text"
     st.session_state.loading = True
     st.session_state.results = []
+    st.session_state.query_genre_scores = []
     st.rerun()
 
 if st.session_state.loading:
     try:
         encoder, classifier, index, metadata, tokenizer, vocab, device = load_models(cfg)
         if st.session_state.get("query_type") == "image":
-            st.session_state.results = run_image_search(
-                st.session_state.image_data, encoder, index, metadata, device,
+            st.session_state.results, st.session_state.query_genre_scores = run_image_search(
+                st.session_state.image_data, encoder, classifier, index, metadata, vocab, device,
                 top_k=cfg.get("top_k", 10),
             )
         else:
-            st.session_state.results = run_search(
+            st.session_state.results, st.session_state.query_genre_scores = run_search(
                 st.session_state.last_query, encoder, classifier,
                 index, metadata, tokenizer, vocab, device,
                 top_k=cfg.get("top_k", 10),
@@ -504,9 +526,27 @@ if st.session_state.results or st.session_state.loading:
     state_word = "resolving" if st.session_state.loading else "matched"
     count_str = f'<span>top {n} results</span>' if not st.session_state.loading else ""
 
+    query_genre_scores = st.session_state.get("query_genre_scores", [])
+    genre_pills_html = ""
+    if query_genre_scores and not st.session_state.loading:
+        pills = "".join(
+            f'<span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);'
+            f'border-radius:20px;padding:3px 10px;font-family:var(--mono);font-size:11px;'
+            f'letter-spacing:.08em;color:var(--ink-1);white-space:nowrap;">'
+            f'<span style="color:var(--accent);font-weight:500;">{pct}%</span> {genre}</span>'
+            for genre, pct in query_genre_scores
+        )
+        genre_pills_html = (
+            f'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
+            f'<span style="color:var(--ink-3);font-family:var(--mono);font-size:10px;'
+            f'letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;">'
+            f'you might be looking for</span>'
+            f'{pills}</div>'
+        )
+
     st.markdown(f"""
 <div style="max-width:1240px;margin: 25px auto 18px;padding:0 40px;
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
   color:var(--ink-2);font-family:var(--mono);font-size:11px;
   letter-spacing:.18em;text-transform:uppercase;position:relative;z-index:2;">
   <div style="display:flex;align-items:center;gap:14px;">
@@ -518,7 +558,10 @@ if st.session_state.results or st.session_state.loading:
       &ldquo;{st.session_state.last_query}&rdquo;
     </span>
   </div>
-  {count_str}
+  <div style="display:flex;align-items:center;gap:16px;">
+    {genre_pills_html}
+    {count_str}
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
