@@ -531,7 +531,7 @@ if st.session_state.results or st.session_state.loading:
     if query_genre_scores and not st.session_state.loading:
         pills = "".join(
             f'<span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);'
-            f'border-radius:20px;padding:3px 8px;font-family:var(--mono);font-size:10px;'
+            f'border-radius:20px;padding:3px 8px;font-family:var(--mono);font-size:10.5px;'
             f'letter-spacing:.04em;color:var(--ink-1);white-space:nowrap;">'
             f'<span style="color:var(--accent);font-weight:500;">{pct}%</span> {genre}</span>'
             for genre, pct in query_genre_scores
