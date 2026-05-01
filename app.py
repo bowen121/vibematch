@@ -344,7 +344,7 @@ def build_card_html(result: SearchResult, data_root: str = ".") -> str:
     ]
     genres = genres[:3]
 
-    halo = _hex_to_rgba(dominant, 0.6)
+    halo = _hex_to_rgba(dominant, 0.8)
     poster_url = get_poster_url(meta)
     data_uri = _encode_image(Path(data_root) / meta.get("image_path", ""))
     if poster_url and data_uri:
@@ -537,11 +537,12 @@ if st.session_state.results or st.session_state.loading:
             for genre, pct in query_genre_scores
         )
         genre_pills_html = (
-            f'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
-            f'<span style="color:var(--ink-2);font-family:var(--mono);'
-            f'letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;">'
+            f'<div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;min-width:0;overflow:hidden;">'
+            f'<span style="color:var(--ink-2);font-family:var(--mono);font-size:10px;'
+            f'letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;">'
             f'you might be looking for</span>'
-            f'{pills}</div>'
+            f'<div style="display:flex;gap:8px;flex-wrap:nowrap;min-width:0;overflow:hidden;">{pills}</div>'
+            f'</div>'
         )
 
     st.markdown(f"""
@@ -558,7 +559,7 @@ if st.session_state.results or st.session_state.loading:
       &ldquo;{st.session_state.last_query}&rdquo;
     </span>
   </div>
-  <div style="display:flex;align-items:center;gap:16px;">
+  <div style="display:flex;align-items:center;gap:16px;min-width:0;overflow:hidden;">
     {genre_pills_html}
     {count_str}
   </div>
