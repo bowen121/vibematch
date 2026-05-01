@@ -17,7 +17,7 @@ Query (text or image)
         ↓
   Learned projection head  →  256-d L2-normalized embedding
         ↓
-  FAISS IndexFlatIP 
+  FAISS IndexFlatIP
         ↓
   Top-12 results  +  live MLP genre tags
 ```
@@ -25,7 +25,7 @@ Query (text or image)
 1. **Text query** — tokenized with DistilBERT, CLS token projected to 256-d space.
 2. **Image query** — resized to 224×224, passed through ResNet-50 avgpool, projected to the same 256-d space.
 3. **Retrieval** — inner product search over a pre-built FAISS flat index. Because all embeddings are L2-normalized, inner product equals cosine similarity.
-4. **Genre tagging** — a lightweight MLP classifier runs on the matched item's stored image embedding and predicts genre labels in real time, independent of the query.
+4. **Genre tagging** — a lightweight MLP classifier (trained on image embeddings) runs on the query embedding first, predicting "you might be looking for: 82% Thriller, 61% Crime" to demonstrate cross-modal alignment. It also annotates each retrieved result independently.
 
 ## Model Architecture
 
@@ -38,19 +38,23 @@ Query (text or image)
 
 Both projection heads share the same structure: `Linear → LayerNorm → GELU → Dropout → Linear`. Only the projection heads are trained; backbone weights are frozen throughout.
 
-**Loss:** symmetric InfoNCE contrastive loss over (image, caption) pairs within each batch. Positive pairs are matched (image, caption); all other combinations in the batch are negatives.
+**Loss:** symmetric InfoNCE contrastive loss over (image, caption) pairs within each batch. Positive pairs are matched (image, caption); all other combinations in the batch are negatives. Temperature is fixed at τ=0.07 — learnable temperature was found to collapse from 0.07 → 0.027 in every run, causing overconfident gradients and val divergence.
+
+**Best checkpoint:** `models/runs/20260428_050849/best.pt` — val_loss=3.2685, R@1=5.3%, R@10=21.3%, med_rank=84, align=0.438
 
 ### Genre Classifier
 
-A 4-layer MLP trained on frozen image embeddings from the trained encoder. Takes a 256-d embedding as input and outputs multi-label genre predictions. Used exclusively for live result annotation — not part of the retrieval pipeline.
+A 4-layer MLP (`256 → 512 → 256 → num_genres`) trained on frozen image embeddings. Because image and text projections share the same 256-d space, the classifier also works on text query embeddings at inference — proving cross-modal alignment. Used for the "you might be looking for" readout on each query and for annotating retrieved results.
 
 ## Features
 
 - **Text search** — describe any mood, aesthetic, era, or feeling
 - **Image search** — upload a still, poster, or photo and find visually similar media
 - **Cross-modal retrieval** — text queries match books and movies in the same embedding space
-- **Live genre tagging** — genres predicted fresh per result via the MLP classifier
-- **High-res posters** — Amazon CDN images for all 57k items (no local image files required at runtime)
+- **Live query genre prediction** — MLP trained on image embeddings predicts genres from text queries in real time, proving the learned space aligns both modalities ("you might be looking for: 82% Thriller")
+- **Live result genre tagging** — genres predicted per result via the same MLP classifier
+- **Dominant-color theming** — each result card is tinted by the poster's extracted dominant color
+- **High-res posters** — CDN images for all 66k items (no local image files required at runtime)
 - **Interactive UI** — particle canvas background with cursor tracking, built in Streamlit with a custom HTML/JS search component
 
 ## Setup
@@ -108,36 +112,47 @@ For Part A details (DataBundle API, sampler, schema), see [`docs/part_a.md`](doc
 
 ```
 vibematch/
-|-- README.md                  # Project overview, setup, and usage instructions
-|-- requirements.txt           # Python dependencies
-|-- app.py                     # Streamlit entry point: launches the web app
+|-- README.md
+|-- requirements.txt
+|-- app.py                         # Streamlit entry point
 |-- configs/
-|   |-- train_config.yaml      # Training hyperparameters
-|   +-- app_config.yaml        # App settings (top-k, index path, model weight path)
+|   |-- train_config.yaml          # Hyperparameters for training scripts
+|   +-- app_config.yaml            # App settings (top-k, index path, weight paths)
 |-- scripts/
-|   |-- train_clip.py          # Trains projection layers with contrastive loss
-|   |-- train_classifier.py    # Trains the MLP genre classifier on frozen embeddings
-|   +-- build_index.py         # Generates the FAISS index from image embeddings
+|   |-- prepare_data.py            # End-to-end data pipeline (idempotent)
+|   |-- train_clip.py              # Trains projection heads with contrastive loss
+|   |-- train_classifier.py        # Trains MLP genre classifier on frozen embeddings
+|   |-- extract_embeddings.py      # Saves (N, 256) embeddings.pt for classifier training
+|   |-- build_index.py             # Builds FAISS index + dominant-color metadata
+|   |-- generate_descriptions.py   # Qwen2.5-VL caption generation (parallel splits)
+|   |-- download_data.py           # Kaggle dataset fetch
+|   |-- download_posters.py        # Poster CDN URL scrape
+|   +-- preprocess.py              # Raw → canonical CSV
 |-- src/
 |   |-- loaders/
-|   |   |-- dataset.py         # Dataset classes and image/text transforms
-|   |   |-- data_loader.py     # DataLoader factory with batching and sampling logic
-|   |   +-- split.py           # Genre-stratified train/val/test splitting logic
+|   |   |-- dataset.py             # MediaDataset + image/text transforms
+|   |   |-- data_loader.py         # DataLoader factory with WeightedRandomSampler
+|   |   +-- split.py               # Genre-stratified train/val/test splitting
 |   |-- model/
-|   |   |-- encoder.py         # Frozen ResNet + DistilBERT w/ projection layers
-|   |   |-- classifier.py      # MLP genre classifier for live genre tagging
-|   |   +-- loss.py            # Symmetric contrastive loss function
+|   |   |-- encoder.py             # Frozen ResNet + DistilBERT w/ projection heads
+|   |   |-- classifier.py          # MLP genre classifier + predict_genres_with_scores()
+|   |   +-- loss.py                # Symmetric InfoNCE contrastive loss
 |   +-- retrieval/
-|       |-- engine.py          # FAISS index building and saving
-|       +-- search.py          # Cosine-similarity query and top-k retrieval
+|       |-- engine.py              # FAISS index building, normalisation, save/load
+|       +-- search.py              # Cosine-similarity query + top-k SearchResult
 |-- data/
-|   |-- raw/                   # Original downloaded datasets (posters, covers)
-|   +-- processed/             # Cleaned images and metadata CSVs
-|-- models/                    # Saved checkpoints (.pt) and FAISS index (.bin)
+|   |-- raw/                       # Downloaded datasets (git-ignored)
+|   +-- processed/                 # Cleaned CSVs used by all training scripts
+|-- models/                        # Checkpoints (.pt), FAISS index (.bin), vocab JSON
+|-- docs/
+|   |-- part_a.md                  # DataBundle API spec
+|   |-- part_b.md                  # CLIP training details and extract_embeddings usage
+|   +-- part_c.md                  # MLP classifier details
 |-- notebooks/
-|   +-- exploration.ipynb      # EDA: dataset stats, sample visualizations
+|   +-- exploration.ipynb          # EDA: genre distribution, image stats, sample grids
 +-- tests/
-    +-- test_pipeline.py       # Smoke tests for data loading, encoding, and retrieval
+    |-- test_loaders.py            # 18 tests for DataBundle, split, sampler
+    +-- test_pipeline.py           # Smoke tests for encoding and retrieval
 ```
 
 ## Usage
@@ -146,10 +161,13 @@ vibematch/
 # Train CLIP projection layers
 python scripts/train_clip.py
 
+# Extract image embeddings for classifier training
+python scripts/extract_embeddings.py
+
 # Train MLP genre classifier
 python scripts/train_classifier.py
 
-# Build FAISS index
+# Build FAISS index (adds dominant-color metadata per item)
 python scripts/build_index.py
 
 # Launch the app
