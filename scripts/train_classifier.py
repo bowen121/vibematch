@@ -19,6 +19,7 @@ The script:
   6. Saves the genre vocabulary to models/genre_vocab.json
 """
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -28,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import torch
 import torch.nn as nn
+import yaml
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import f1_score, precision_score, recall_score
 
@@ -36,21 +38,8 @@ from src.loaders.dataset import parse_genres
 from src.loaders.split import build_genre_vocab, genre_stratified_split
 from src.model.classifier import GenreClassifier
 
-# ── Hyperparameters (from configs/train_config.yaml) ──────────────────
-NUM_EPOCHS = 50
-BATCH_SIZE = 128
-LR = 1e-3
-WEIGHT_DECAY = 1e-4
-PATIENCE = 5
 CHECKPOINT_PATH = Path("models/genre_classifier.pt")
 VOCAB_PATH = Path("models/genre_vocab.json")
-
-# Member B's embeddings — check repo root first, then models/
-EMBEDDINGS_PATH = Path("embeddings.pt")
-if not EMBEDDINGS_PATH.exists():
-    EMBEDDINGS_PATH = Path("models/embeddings.pt")
-
-PROCESSED_DIR = Path("data/processed")
 
 
 def load_embeddings(path: Path) -> tuple[torch.Tensor, torch.Tensor, list]:
@@ -173,30 +162,25 @@ def evaluate(model, val_loader, criterion, device):
     return avg_loss, f1, precision, recall
 
 
-def train_classifier(model, train_loader, val_loader, device):
-    """Full training loop with early stopping (patience=5).
-
-    Saves the best model checkpoint to CHECKPOINT_PATH whenever
-    validation loss improves. Stops early if val loss hasn't improved
-    for PATIENCE consecutive epochs.
-    """
+def train_classifier(model, train_loader, val_loader, device, cfg):
+    """Full training loop with early stopping."""
     criterion = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.AdamW(
         model.parameters(),
-        lr=LR,
-        weight_decay=WEIGHT_DECAY,
+        lr=cfg["learning_rate"],
+        weight_decay=cfg["weight_decay"],
     )
 
     best_val_loss = float("inf")
     epochs_without_improvement = 0
+    patience = cfg["patience"]
 
-    for epoch in range(1, NUM_EPOCHS + 1):
+    for epoch in range(1, cfg["epochs"] + 1):
         train_loss = train_one_epoch(model, train_loader, criterion, optimizer, device)
         val_loss, f1, precision, recall = evaluate(model, val_loader, criterion, device)
 
         print(f"Epoch {epoch:3d} | train_loss={train_loss:.4f} | val_loss={val_loss:.4f} | F1={f1:.4f} | Prec={precision:.4f} | Rec={recall:.4f}")
 
-        # ── Early stopping logic ──────────────────────────────────────
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             epochs_without_improvement = 0
@@ -205,80 +189,93 @@ def train_classifier(model, train_loader, val_loader, device):
             print(f"  ✓ Saved best model (val_loss={val_loss:.4f}, F1={f1:.4f})")
         else:
             epochs_without_improvement += 1
-            if epochs_without_improvement >= PATIENCE:
-                print(f"  Early stopping at epoch {epoch} (patience={PATIENCE})")
+            if epochs_without_improvement >= patience:
+                print(f"  Early stopping at epoch {epoch} (patience={patience})")
                 break
 
-    # Reload the best checkpoint
     model.load_state_dict(torch.load(CHECKPOINT_PATH, weights_only=True))
     print(f"\nTraining complete. Best val_loss={best_val_loss:.4f}")
     return model
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--train-config", default="configs/train_config.yaml")
+    args = parser.parse_args()
+
+    with open(args.train_config) as f:
+        full_cfg = yaml.safe_load(f)
+    cfg = full_cfg["classifier"]
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    if not EMBEDDINGS_PATH.exists():
+    # Member B's embeddings — check repo root first, then models/
+    embeddings_path = Path("embeddings.pt")
+    if not embeddings_path.exists():
+        embeddings_path = Path("models/embeddings.pt")
+
+    if not embeddings_path.exists():
         print("ERROR: embeddings.pt not found.")
         print("  Expected at: ./embeddings.pt or ./models/embeddings.pt")
-        print("  Run `python scripts/extract_embeddings.py` first (Member B's script).")
+        print("  Run `python scripts/extract_embeddings.py` first.")
         sys.exit(1)
 
-    if not PROCESSED_DIR.exists():
+    processed_dir = Path("data/processed")
+    if not processed_dir.exists():
         print("ERROR: data/processed/ not found.")
-        print("  Run `python scripts/prepare_data.py` first (Member A's script).")
+        print("  Run `python scripts/prepare_data.py` first.")
         sys.exit(1)
 
     # ── Load embeddings ───────────────────────────────────────────────
-    print(f"Loading embeddings from {EMBEDDINGS_PATH}...")
-    embeddings, labels, ids = load_embeddings(EMBEDDINGS_PATH)
+    print(f"Loading embeddings from {embeddings_path}...")
+    embeddings, labels, ids = load_embeddings(embeddings_path)
     num_genres = labels.shape[1]
-    print(f"  {embeddings.shape[0]} samples, {num_genres} genres, dim={embeddings.shape[1]}")
+    input_dim = embeddings.shape[1]
+    print(f"  {embeddings.shape[0]} samples, {num_genres} genres, dim={input_dim}")
 
-    # ── Reconstruct the correct split (matches extract_embeddings.py) ─
+    # ── Reconstruct the correct split ────────────────────────────────
     print("Reconstructing train/val/test split from processed CSVs (seed=42)...")
     train_idx, val_idx, test_idx, genre_vocab = reconstruct_split(
-        PROCESSED_DIR, ids, val_frac=0.1, test_frac=0.1, seed=42, min_genre_count=5
+        processed_dir, ids, val_frac=0.1, test_frac=0.1, seed=42, min_genre_count=5
     )
     print(f"  train={len(train_idx)}, val={len(val_idx)}, test={len(test_idx)}")
     print(f"  genre_vocab: {len(genre_vocab)} genres")
 
-    # ── Save genre vocabulary (needed by app.py for predict_genres) ───
+    # ── Save genre vocabulary ─────────────────────────────────────────
     VOCAB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(VOCAB_PATH, "w") as f:
         json.dump(genre_vocab, f, indent=2)
     print(f"  ✓ Saved genre vocabulary → {VOCAB_PATH}")
 
     # ── Build data loaders ────────────────────────────────────────────
-    train_emb = embeddings[train_idx]
-    train_labels = labels[train_idx]
-    val_emb = embeddings[val_idx]
-    val_labels = labels[val_idx]
-    test_emb = embeddings[test_idx]
-    test_labels = labels[test_idx]
-
+    batch_size = cfg["batch_size"]
     train_loader = DataLoader(
-        TensorDataset(train_emb, train_labels),
-        batch_size=BATCH_SIZE,
+        TensorDataset(embeddings[train_idx], labels[train_idx]),
+        batch_size=batch_size,
         shuffle=True,
     )
     val_loader = DataLoader(
-        TensorDataset(val_emb, val_labels),
-        batch_size=BATCH_SIZE,
+        TensorDataset(embeddings[val_idx], labels[val_idx]),
+        batch_size=batch_size,
+    )
+    test_loader = DataLoader(
+        TensorDataset(embeddings[test_idx], labels[test_idx]),
+        batch_size=batch_size,
     )
 
     # ── Train ─────────────────────────────────────────────────────────
-    model = GenreClassifier(input_dim=256, num_genres=num_genres).to(device)
-    print(f"\nTraining GenreClassifier (input_dim=256, num_genres={num_genres})...")
-    print(f"  device={device}, epochs={NUM_EPOCHS}, batch_size={BATCH_SIZE}, lr={LR}\n")
+    model = GenreClassifier(
+        input_dim=input_dim,
+        num_genres=num_genres,
+        hidden_dims=cfg["hidden_dims"],
+        dropout=cfg["dropout"],
+    ).to(device)
+    print(f"\nTraining GenreClassifier (input_dim={input_dim}, num_genres={num_genres}, hidden_dims={cfg['hidden_dims']})...")
+    print(f"  device={device}, epochs={cfg['epochs']}, batch_size={batch_size}, lr={cfg['learning_rate']}, wd={cfg['weight_decay']}\n")
 
-    trained_model = train_classifier(model, train_loader, val_loader, device)
+    trained_model = train_classifier(model, train_loader, val_loader, device, cfg)
 
     # ── Final test evaluation ─────────────────────────────────────────
-    test_loader = DataLoader(
-        TensorDataset(test_emb, test_labels),
-        batch_size=BATCH_SIZE,
-    )
     criterion = nn.BCEWithLogitsLoss()
     test_loss, test_f1, test_prec, test_rec = evaluate(trained_model, test_loader, criterion, device)
     print(f"\n═══ Test Results ═══")

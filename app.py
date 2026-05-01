@@ -71,8 +71,14 @@ def load_models(cfg: dict):
     encoder.to(device).eval()
 
     classifier_state = torch.load(cfg["classifier_weights_path"], map_location=device)
-    num_genres = classifier_state["mlp.6.weight"].shape[0]
-    classifier = GenreClassifier(num_genres=num_genres)
+    last_layer_key = max(k for k in classifier_state if k.endswith(".weight"))
+    num_genres = classifier_state[last_layer_key].shape[0]
+    clf_cfg = train_cfg.get("classifier", {})
+    classifier = GenreClassifier(
+        num_genres=num_genres,
+        hidden_dims=clf_cfg.get("hidden_dims", [512, 256]),
+        dropout=clf_cfg.get("dropout", 0.3),
+    )
     classifier.load_state_dict(classifier_state)
     classifier.to(device).eval()
 

@@ -3,18 +3,14 @@ import torch
 import torch.nn as nn
 
 class GenreClassifier(nn.Module):
-    def __init__(self, input_dim=256, num_genres=54):
+    def __init__(self, input_dim=256, num_genres=54, hidden_dims=(512, 256), dropout=0.3):
         super(GenreClassifier, self).__init__()
-        # Maps the mathematical formulas to PyTorch layers
-        self.mlp = nn.Sequential(
-            nn.Linear(input_dim, 512),
-            nn.ReLU(),
-            nn.Dropout(p=0.3),
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Dropout(p=0.3),
-            nn.Linear(256, num_genres)
-        )
+        dims = [input_dim, *hidden_dims]
+        layers = []
+        for in_d, out_d in zip(dims, dims[1:]):
+            layers += [nn.Linear(in_d, out_d), nn.ReLU(), nn.Dropout(p=dropout)]
+        layers.append(nn.Linear(dims[-1], num_genres))
+        self.mlp = nn.Sequential(*layers)
     
     def forward(self, x):
         logits = self.mlp(x)
