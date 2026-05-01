@@ -6,14 +6,7 @@ Describe a vibe or upload an image, and VibeMatch returns the 12 most aesthetica
 
 ## Live Demo
 
-<p>
-  <a href="https://vibematch-xprf2kfhsbfjz8ecyyugvd.streamlit.app" target="_blank" style="text-decoration:none;">
-    <br>
-    <span style="font-size:3em; font-weight: bold;">
-      VibeMatch
-    </span>
-  </a>
-</p>
+[**VibeMatch**](https://vibematch-xprf2kfhsbfjz8ecyyugvd.streamlit.app)
 
 ## How It Works
 
