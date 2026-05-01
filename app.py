@@ -532,14 +532,14 @@ if st.session_state.results or st.session_state.loading:
         pills = "".join(
             f'<span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);'
             f'border-radius:20px;padding:3px 8px;font-family:var(--mono);font-size:10px;'
-            f'letter-spacing:.04em;color:var(--ink-1);white-space:nowrap;">'
+            f'letter-spacing:.06em;color:var(--ink-1);white-space:nowrap;">'
             f'<span style="color:var(--accent);font-weight:500;">{pct}%</span> {genre}</span>'
             for genre, pct in query_genre_scores
         )
         genre_pills_html = (
             f'<div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;margin-left:10px;">'
             f'<span style="color:var(--ink-2);font-family:var(--mono);'
-            f'letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;">'
+            f'letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;">'
             f'you might be looking for</span>'
             f'{pills}</div>'
         )
