@@ -6,7 +6,14 @@ Describe a vibe or upload an image, and VibeMatch returns the 12 most aesthetica
 
 ## Live Demo
 
-**[vibematch-xprf2kfhsbfjz8ecyyugvd.streamlit.app](https://vibematch-xprf2kfhsbfjz8ecyyugvd.streamlit.app)**
+<p>
+  <a href="https://vibematch-xprf2kfhsbfjz8ecyyugvd.streamlit.app" target="_blank" style="text-decoration:none;">
+    <br>
+    <span style="font-size:3em; font-weight: bold;">
+      VibeMatch
+    </span>
+  </a>
+</p>
 
 ## How It Works
 
@@ -58,6 +65,15 @@ A 4-layer MLP (`256 → 512 → 256 → num_genres`) trained on frozen image emb
 - **Interactive UI** — particle canvas background with cursor tracking, built in Streamlit with a custom HTML/JS search component
 
 ## Setup
+
+**Option A — conda (recommended):**
+
+```bash
+conda env create -f environment.yaml
+conda activate vibematch
+```
+
+**Option B — pip:**
 
 ```bash
 pip install -r requirements.txt
