@@ -537,7 +537,7 @@ if st.session_state.results or st.session_state.loading:
             for genre, pct in query_genre_scores
         )
         genre_pills_html = (
-            f'<div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;margin-left:12px;">'
+            f'<div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;margin-left:14px;">'
             f'<span style="color:var(--ink-2);font-family:var(--mono);'
             f'letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;">'
             f'you might be looking for</span>'
