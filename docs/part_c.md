@@ -70,34 +70,44 @@ encoder never saw during contrastive training.
 
 | split | loss | F1 (macro) | Precision (macro) | Recall (macro) |
 |-------|------|------------|-------------------|----------------|
-| val   | 0.0749 | 0.176 | 0.433 | 0.128 |
-| test  | 0.0762 | 0.170 | 0.464 | 0.125 |
+| val   | 0.0846 | 0.114 | 0.308 | 0.082 |
+| test  | 0.0845 | 0.114 | 0.343 | 0.082 |
 
-Precision is high (46%) — when the model predicts a genre, it's usually
-correct. Recall is lower, which is expected for a 54-class multi-label
-problem where each item has only ~1.3 genres on average. The model is
-conservative at the 0.5 threshold. Lowering the threshold trades precision
-for recall.
+Precision is 34% — when the model predicts a genre, it's right about a
+third of the time. Recall is lower, which is expected for a 54-class
+multi-label problem where each item has only ~1.3 genres on average. The
+model is conservative at the 0.5 threshold. Lowering the threshold trades
+precision for recall. In the app, `predict_genres_with_scores()` returns
+the top-3 genres by probability, which are usually reasonable regardless
+of the threshold.
 
 ---
 
 ## Integration with the web app
 
-Member D calls `predict_genres()` from `src/model/classifier.py`:
+Two inference functions are used by `app.py`:
+
+**1. `predict_genres(embedding, model, genre_vocab, threshold=0.5)`**
+Returns genre names above the threshold. Used for tagging each search result:
 
 ```python
-from src.model.classifier import predict_genres, GenreClassifier
-
-model = GenreClassifier(input_dim=256, num_genres=54)
-model.load_state_dict(torch.load("models/genre_classifier.pt"))
-
-genre_vocab = json.load(open("models/genre_vocab.json"))
-
 tags = predict_genres(embedding, model, genre_vocab, threshold=0.5)
 # → ["Drama", "Romance"]
 ```
 
-The genre tags appear below each search result card in the Streamlit UI.
+**2. `predict_genres_with_scores(embedding, model, genre_vocab, top_k=3)`**
+Returns top-k genres with confidence percentages. Used for the "you might
+be looking for" genre pills displayed above search results:
+
+```python
+scores = predict_genres_with_scores(query_emb, model, genre_vocab)
+# → [("Thriller", 82), ("Crime", 67), ("Drama", 51)]
+```
+
+This function also works on **text** query embeddings (not just images),
+demonstrating that the shared CLIP projection space aligns both modalities —
+the MLP was trained on image embeddings but produces sensible predictions
+from text embeddings too.
 
 ---
 
@@ -131,7 +141,7 @@ All tests use synthetic data — no real dataset or trained encoder required.
 
 | file | purpose |
 |------|---------|
-| `src/model/classifier.py` | `GenreClassifier` MLP + `predict_genres()` inference helper |
+| `src/model/classifier.py` | `GenreClassifier` MLP + `predict_genres()` + `predict_genres_with_scores()` |
 | `scripts/train_classifier.py` | training loop, split reconstruction, early stopping |
 | `models/genre_classifier.pt` | trained checkpoint |
 | `models/genre_vocab.json` | ordered genre list (index → genre name mapping) |

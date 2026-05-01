@@ -36,5 +36,9 @@ data/raw/SampleMoviePosters/
 models/runs/
 # Model weights and index files tracked via Git LFS
 
+# Presentation generator
+scripts/make_slides.py
+*.pptx
+
 # Jupyter
 .ipynb_checkpoints/
