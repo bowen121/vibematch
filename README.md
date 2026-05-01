@@ -40,7 +40,7 @@ Both projection heads share the same structure: `Linear → LayerNorm → GELU �
 
 **Loss:** symmetric InfoNCE contrastive loss over (image, caption) pairs within each batch. Positive pairs are matched (image, caption); all other combinations in the batch are negatives. Temperature is fixed at τ=0.07 — learnable temperature was found to collapse from 0.07 → 0.027 in every run, causing overconfident gradients and val divergence.
 
-**Best checkpoint:** `models/runs/20260428_050849/best.pt` — val_loss=3.2685, R@1=5.3%, R@10=21.3%, med_rank=84, align=0.438
+**Best checkpoint:** val_loss=3.2685, R@1=5.3%, R@10=21.3%, med_rank=84, align=0.438
 
 ### Genre Classifier
 
