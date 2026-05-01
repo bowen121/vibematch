@@ -549,7 +549,7 @@ if st.session_state.results or st.session_state.loading:
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
   color:var(--ink-2);font-family:var(--mono);font-size:11px;
   letter-spacing:.18em;text-transform:uppercase;position:relative;z-index:2;">
-  <div style="display:flex;align-items:center;gap:14px;flex-wrap:nowrap;">
+  <div style="display:flex;align-items:center;gap:18px;flex-wrap:nowrap;">
     <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);
       box-shadow:0 0 8px 1px var(--accent-glow);animation:vm-pulse 2.4s ease-in-out infinite;"></div>
     <span>{state_word}</span>
