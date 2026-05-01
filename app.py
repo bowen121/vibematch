@@ -537,7 +537,7 @@ if st.session_state.results or st.session_state.loading:
             for genre, pct in query_genre_scores
         )
         genre_pills_html = (
-            f'<div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;margin-top:8px;padding-left:20px;">'
+            f'<div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;">'
             f'<span style="color:var(--ink-2);font-family:var(--mono);font-size:10px;'
             f'letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;">'
             f'you might be looking for</span>'
@@ -546,21 +546,20 @@ if st.session_state.results or st.session_state.loading:
 
     st.markdown(f"""
 <div style="max-width:1240px;margin: 25px auto 18px;padding:0 40px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
   color:var(--ink-2);font-family:var(--mono);font-size:11px;
   letter-spacing:.18em;text-transform:uppercase;position:relative;z-index:2;">
-  <div style="display:flex;align-items:center;justify-content:space-between;">
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);
-        box-shadow:0 0 8px 1px var(--accent-glow);animation:vm-pulse 2.4s ease-in-out infinite;"></div>
-      <span>{state_word}</span>
-      <span style="color:var(--ink-0);font-style:italic;font-family:var(--serif);
-        font-size:16px;letter-spacing:0;text-transform:none;">
-        &ldquo;{st.session_state.last_query}&rdquo;
-      </span>
-    </div>
-    {count_str}
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:nowrap;">
+    <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);
+      box-shadow:0 0 8px 1px var(--accent-glow);animation:vm-pulse 2.4s ease-in-out infinite;"></div>
+    <span>{state_word}</span>
+    <span style="color:var(--ink-0);font-style:italic;font-family:var(--serif);
+      font-size:16px;letter-spacing:0;text-transform:none;">
+      &ldquo;{st.session_state.last_query}&rdquo;
+    </span>
+    {genre_pills_html}
   </div>
-  {genre_pills_html}
+  {count_str}
 </div>
 """, unsafe_allow_html=True)
 
