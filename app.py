@@ -539,7 +539,7 @@ if st.session_state.results or st.session_state.loading:
         genre_pills_html = (
             f'<div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;min-width:0;overflow:hidden;">'
             f'<span style="color:var(--ink-2);font-family:var(--mono);font-size:10px;'
-            f'letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;">'
+            f'letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;">'
             f'you might be looking for</span>'
             f'<div style="display:flex;gap:8px;flex-wrap:nowrap;min-width:0;overflow:hidden;">{pills}</div>'
             f'</div>'
